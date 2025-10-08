@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Conteúdos - Professores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+            color: #333;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+            margin-bottom: 30px;
+        }
+        
+        .form-container {
+            max-width: 500px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+        
+        input,
+        textarea,
+        button,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        .msg {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        
+        .preview {
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .preview img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .voltar-btn {
+            background: #888;
+            margin-top: 10px;
+        }
+        
+        .voltar-btn:hover {
+            background: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Cadastro de Conteúdos - Professores</h1>
+    <div class="form-container">
+        <label>Código do Professor:</label>
+        <input type="text" id="codigoProfessor" placeholder="Digite seu código">
+
+        <button onclick="verificarCodigo()">Validar Código</button>
+
+        <div id="formConteudo" style="display:none; margin-top:20px;">
+            <label>Matéria:</label>
+            <input type="text" id="materia" readonly>
+
+            <label>Assunto:</label>
+            <input type="text" id="assunto" placeholder="Ex: Álgebra">
+
+            <label>Descrição / Imagem (uma opção):</label>
+            <textarea id="descricao" placeholder="Explique ou descreva a imagem"></textarea>
+            <input type="file" id="imagem" accept="image/*">
+            <div class="preview" id="preview"></div>
+
+            <label>Questões (uma por linha):</label>
+            <textarea id="questoes" placeholder="Digite cada questão em uma linha"></textarea>
+
+            <button onclick="salvarConteudo()">Salvar Conteúdo</button>
+        </div>
+
+        <button class="voltar-btn" onclick="voltarInicio()" style="margin-top:15px;">⬅ Voltar para Início</button>
+        <p id="msg"></p>
+    </div>
+    </section>
+
+    <script>
+        let arquivoBase64 = null;
+
+        // Função para voltar para main.html
+        function voltarInicio() {
+            window.location.href = "main.html";
+        }
+
+        // Verifica o código do professor
+        function verificarCodigo() {
+            const codigo = document.getElementById("codigoProfessor").value.trim();
+            const CODIGO_CORRETO = "1940"; // Substitua pelo seu código real
+            const materiaProfessor = "Matemática"; // Exemplo: a matéria do professor
+
+            if (codigo === CODIGO_CORRETO) {
+                document.getElementById("formConteudo").style.display = "block";
+                document.getElementById("materia").value = materiaProfessor;
+                document.getElementById("msg").innerText = "✅ Código válido! Você pode cadastrar conteúdos.";
+            } else {
+                alert("❌ Código incorreto! Apenas professores podem adicionar conteúdos.");
+                document.getElementById("formConteudo").style.display = "none";
+            }
+        }
+
+
+
+        {
+            function verificarCodigo() {
+                const codigo = document.getElementById("codigoProfessor").value.trim();
+                const CODIGO_CORRETO = "prof35"; // Substitua pelo seu código real
+                const materiaProfessor = "Ingles"; // Exemplo: a matéria do professor
+
+                if (codigo === CODIGO_CORRETO) {
+                    document.getElementById("formConteudo").style.display = "block";
+                    document.getElementById("materia").value = materiaProfessor;
+                    document.getElementById("msg").innerText = "✅ Código válido! Você pode cadastrar conteúdos.";
+                } else {
+                    alert("❌ Código incorreto! Apenas professores podem adicionar conteúdos.");
+                    document.getElementById("formConteudo").style.display = "none";
+                }
+            }
+
+        }
+
+
+        // Pré-visualização da imagem
+        document.getElementById("imagem").addEventListener("change", function() {
+            const preview = document.getElementById("preview");
+            preview.innerHTML = "";
+            if (this.files.length > 0) {
+                const img = document.createElement("img");
+                img.src = URL.createObjectURL(this.files[0]);
+                preview.appendChild(img);
+
+                const reader = new FileReader();
+                reader.onload = () => arquivoBase64 = reader.result;
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        // Salvar conteúdo no localStorage
+        function salvarConteudo() {
+            let materia = document.getElementById("materia").value.trim();
+            let assunto = document.getElementById("assunto").value.trim();
+            let descricao = document.getElementById("descricao").value.trim();
+            let questoes = document.getElementById("questoes").value.trim().split("\n").filter(q => q);
+
+            if (!materia || !assunto || (!descricao && !arquivoBase64)) {
+                alert("Preencha todos os campos obrigatórios!");
+                return;
+            }
+
+            let conteudos = JSON.parse(localStorage.getItem("conteudos")) || {};
+            if (!conteudos[materia]) conteudos[materia] = [];
+
+            conteudos[materia].push({
+                assunto: assunto,
+                descricao: descricao,
+                questoes: questoes,
+                arquivo: arquivoBase64
+            });
+
+            localStorage.setItem("conteudos", JSON.stringify(conteudos));
+
+            document.getElementById("msg").innerText = "✅ Conteúdo salvo com sucesso!";
+            document.getElementById("assunto").value = "";
+            document.getElementById("descricao").value = "";
+            document.getElementById("questoes").value = "";
+            document.getElementById("imagem").value = "";
+            document.getElementById("preview").innerHTML = "";
+            arquivoBase64 = null;
+        }
+    </script>

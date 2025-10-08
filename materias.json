@@ -1,0 +1,18 @@
+{
+    "escolar": [
+        { "nome": "Matemática", "icone": "📘", "xp": 10 },
+        { "nome": "Ciências", "icone": "📗", "xp": 10 },
+        { "nome": "História", "icone": "📙", "xp": 10 },
+        { "nome": "Português", "icone": "📕", "xp": 10 },
+        { "nome": "Geografia", "icone": "📘", "xp": 10 },
+        { "nome": "Física", "icone": "📗", "xp": 10 },
+        { "nome": "Química", "icone": "📙", "xp": 10 }
+    ],
+    "extras": [
+        { "nome": "Tecnologia", "icone": "💻", "xp": 15 },
+        { "nome": "Saúde", "icone": "❤️", "xp": 15 },
+        { "nome": "Artes", "icone": "🎨", "xp": 15 },
+        { "nome": "Música", "icone": "🎵", "xp": 15 },
+        { "nome": "Esportes", "icone": "🤸", "xp": 15 }
+    ]
+}
