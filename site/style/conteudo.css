@@ -1,0 +1,83 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f7fa;
+    padding: 20px;
+    color: #333;
+}
+
+h1 {
+    text-align: center;
+    color: #4CAF50;
+    margin-bottom: 30px;
+}
+
+.form-container {
+    max-width: 500px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    font-weight: bold;
+    margin-top: 10px;
+    display: block;
+}
+
+input,
+textarea,
+button,
+select {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+button {
+    background: #4CAF50;
+    color: white;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #45a049;
+}
+
+.msg {
+    text-align: center;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.preview {
+    text-align: center;
+    margin: 10px 0;
+}
+
+.preview img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.voltar-btn {
+    background: #888;
+    margin-top: 10px;
+}
+
+.voltar-btn:hover {
+    background: #555;
+}

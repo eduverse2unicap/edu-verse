@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduVerse - Abas + XP</title>
+    <link rel="stylesheet" href="/site/style/idex.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>EduVerse 🚀</h1>
+        <nav>
+            <button class="tab-btn active" onclick="showTab(event,'inicio')">Início</button>
+            <button class="tab-btn" onclick="showTab(event,'login')">Login/Cadastro</button>
+            <button class="tab-btn" onclick="showTab(event,'areas')">Áreas</button>
+            <a href="conteudo.html" class="tab-btn">Cadastro de Conteúdos</a>
+            <button onclick="toggleDarkMode()">🌙</button>
+        </nav>
+    </header>
+
+    <!-- Início -->
+    <section id="inicio" class="tab-content active">
+        <div class="hero">
+            <div class="hero-text">
+                <h2>Bem-vindo ao EduVerse 🚀</h2>
+                <p>No EduVerse, cada estudante é um explorador do conhecimento. Aqui, aprender vai além dos livros: é uma jornada interativa, divertida e cheia de conquistas. Transforme desafios em medalhas, dúvidas em descobertas e seu aprendizado em uma
+                    verdadeira aventura cósmica. 🌌✨ Participe das ligas semanais, conquiste pontos de XP e suba no ranking.</p>
+            </div>
+            <div class="rocket-container">
+                <img id="rocket" src="/site/style/imgs/foguete mascote.png" alt="Foguete Mascote">
+            </div>
+        </div>
+    </section>
+
+    <!-- Login / Cadastro -->
+    <section id="login" class="tab-content">
+        <h2>Login / Cadastro</h2>
+        <div class="login-box">
+            <input type="text" placeholder="Nome completo" id="nome">
+            <input type="text" placeholder="E-mail" id="email">
+            <input type="password" placeholder="Senha" id="senha">
+            <button onclick="registerUser()">Entrar</button>
+            <p style="text-align:center; margin-top:15px;">
+                Ainda não tem conta? <a href="cadastro_aluno.html" style="text-decoration:none; color:black;">Cadastre-se</a>
+            </p>
+        </div>
+    </section>
+
+    <!-- Áreas -->
+    <section id="areas" class="tab-content">
+        <h2>Áreas de Conhecimento</h2>
+        <div class="sub-nav">
+            <button class="sub-btn active" onclick="showSubTab(event,'escolar')">Área Escolar</button>
+            <button class="sub-btn" onclick="showSubTab(event,'extras')">Disciplinas Extras</button>
+            <button class="sub-btn" onclick="showSubTab(event,'ligas')">Ligas</button>
+        </div>
+
+        <!-- Escolar -->
+        <div id="escolar" class="sub-tab-content active">
+            <h3>Área Escolar</h3>
+            <div class="grid"></div>
+        </div>
+
+        <!-- Extras -->
+        <div id="extras" class="sub-tab-content">
+            <h3>Disciplinas Extras</h3>
+            <div class="grid"></div>
+        </div>
+        <!-- Cadastro de conteúdos -->
+        <section id="cadastro de conteudos" class="tab-content">
+            <h2>Cadastro de Conteúdos</h2>
+            <div class="form-container">
+                <label>Matéria:</label>
+                <input type="text" id="materia" placeholder="Ex: Matemática">
+
+                <label>Assunto:</label>
+                <input type="text" id="assunto" placeholder="Ex: Álgebra">
+
+                <label>Questões (uma por linha):</label>
+                <textarea id="questoes" placeholder="Digite cada questão em uma linha"></textarea>
+
+                <label>Imagem (opcional):</label>
+                <input type="file" id="imagem" accept="image/*">
+
+                <div class="preview" id="preview"></div>
+
+                <button onclick="salvarConteudo()">Salvar Conteúdo</button>
+                <p id="msg"></p>
+            </div>
+        </section>
+        <!-- Ligas -->
+        <div id="ligas" class="sub-tab-content">
+            <h3>Ligas e Ranking</h3>
+            <p style="text-align:center; margin-bottom:20px;">
+                Participe de desafios semanais, suba de nível e mostre quem domina o conhecimento!
+            </p>
+            <div id="ranking">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Posição</th>
+                            <th>Nome</th>
+                            <th>XP</th>
+                            <th>Medalha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ranking-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Avatar / XP -->
+    <div class="avatar-container">
+        <div class="avatar"></div>
+        <div class="user-name" id="user-name">Usuário</div>
+        <div class="level">Nível <span id="level">1</span></div>
+        <div class="xp-bar">
+            <div class="xp-progress" id="xp-progress"></div>
+        </div>
+        <small><span id="xp">0</span>/100 XP</small>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="/site/script/index.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,355 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f5fdf7;
+    margin: 0;
+    padding: 0;
+    transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+    background: #121212;
+    color: #e0e0e0;
+}
+
+body.dark header {
+    background: #1b5e20;
+}
+
+body.dark .card,
+body.dark .login-box,
+body.dark #ranking {
+    background: #1e1e1e;
+    color: #e0e0e0;
+}
+
+body.dark nav button,
+body.dark .sub-nav button {
+    background: #333;
+    color: #e0e0e0;
+}
+
+body.dark nav button.active,
+body.dark .sub-nav button.active {
+    background: #00c853;
+    color: white;
+}
+
+header {
+    background: #00c853;
+    padding: 15px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+nav {
+    display: flex;
+    gap: 15px;
+}
+
+nav button {
+    background: white;
+    color: #00c853;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.tab-btn {
+    display: inline-block;
+    /* faz o link se comportar como bloco/inline-block */
+    background: #00c853;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    /* remove sublinhado do link */
+    text-align: center;
+    /* centraliza o texto */
+    transition: 0.3s;
+}
+
+.tab-btn:hover {
+    background: #009624;
+}
+
+nav button.active {
+    background: #009624;
+    color: white;
+}
+
+nav button:hover {
+    background: #e8f5e9;
+}
+
+.tab-content {
+    display: none;
+    padding: 40px 10%;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+h2,
+h3 {
+    text-align: center;
+    color: #00c853;
+}
+
+.hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    text-align: left;
+    padding: 60px 20px;
+}
+
+.hero-text {
+    max-width: 500px;
+}
+
+.hero-text h2 {
+    font-size: 36px;
+    margin-bottom: 15px;
+}
+
+.hero-text p {
+    font-size: 18px;
+    color: #444;
+    line-height: 1.6;
+}
+
+.login-box {
+    max-width: 400px;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-box input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+
+.login-box button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background: #00c853;
+    color: white;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.login-box button:hover {
+    background: #009624;
+}
+
+.sub-nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.sub-nav button {
+    background: #e8f5e9;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.sub-nav button.active {
+    background: #00c853;
+    color: white;
+}
+
+.sub-tab-content {
+    display: none;
+}
+
+.sub-tab-content.active {
+    display: block;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    background: #e8f5e9;
+}
+
+.avatar-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    text-align: center;
+}
+
+.avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid #00c853;
+    background: url("https://i.pravatar.cc/150") no-repeat center/cover;
+    margin-bottom: 5px;
+}
+
+.user-name {
+    font-weight: bold;
+    margin-bottom: 3px;
+    color: #333;
+}
+
+.level {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.xp-bar {
+    width: 80px;
+    height: 8px;
+    background: #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.xp-progress {
+    height: 100%;
+    background: #00c853;
+    width: 0%;
+    transition: width 0.4s ease;
+}
+
+#ranking {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+#ranking table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#ranking th,
+#ranking td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+}
+
+.rocket-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+}
+
+#rocket {
+    width: 100px;
+    animation: fly 2s ease-in-out infinite alternate;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+#rocket.jump {
+    transform: translateY(-30px) rotate(-15deg);
+    animation: none;
+}
+
+@keyframes fly {
+    0% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-20px) rotate(5deg);
+    }
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+}
+
+.questao-container {
+    background: #e8f5e9;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.questao-text {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.questao-nav button {
+    padding: 8px 16px;
+    margin: 0 10px;
+    border-radius: 10px;
+    border: none;
+    background: #00c853;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.questao-nav button:hover {
+    background: #009624;
+}
