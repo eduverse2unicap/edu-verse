@@ -8,7 +8,7 @@ function voltarInicio() {
 // Verifica o código do professor
 function verificarCodigo() {
     const codigo = document.getElementById("codigoProfessor").value.trim();
-    const CODIGO_CORRETO = "1940"; // Substitua pelo seu código real
+    const CODIGO_CORRETO = "prof65"; // Substitua pelo seu código real
     const materiaProfessor = "Matemática"; // Exemplo: a matéria do professor
 
     if (codigo === CODIGO_CORRETO) {
