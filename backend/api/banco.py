@@ -59,3 +59,20 @@ def get_students():
         if conn:
             conn.close()
     return students
+
+def add_student(name, age, password, level=1, xp=0, materias='[]'):
+    create_table(create_conn())
+    conn = create_conn()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO alunos (nome, idade, senha, level, xp, materias)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (name, age, password, level, xp, materias))
+        conn.commit()
+    except Error as e:
+        print(f"Error: {e}")
+    finally:
+        if conn:
+            conn.close()
+        
