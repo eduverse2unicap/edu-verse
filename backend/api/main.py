@@ -70,3 +70,5 @@ def create_institution(institution: Institution):
         alunos = institution.alunos,
         professores = institution.professores
     )
+
+ 

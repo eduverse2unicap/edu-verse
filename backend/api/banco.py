@@ -1,6 +1,6 @@
 import sqlite3
 from sqlite3 import Error
-import os
+import os, pass_hash
 
 DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'db.db')
 
@@ -16,6 +16,8 @@ def create_conn():
     return conn
 def create_table_students(conn):
     try:
+        ##you can create a colum to salt on the password pls
+        
         cursor = conn.cursor()
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS alunos (
@@ -30,11 +32,11 @@ def create_table_students(conn):
                 materias TEXT DEFAULT '[]',
                 cpf TEXT UNIQUE,
                 instituicao TEXT DEFAULT 'None',
-                photo TEXT DEFAULT 'None'
+                photo TEXT DEFAULT 'None',
+                salt TEXT NOT NULL
             )
         """)
         conn.commit()
-        # ensure older DB schemas gain any missing columns
         ensure_student_table_columns(conn)
     except Error as e:
         print(f"Error: {e}")
@@ -51,15 +53,18 @@ def ensure_student_table_columns(conn):
         cursor = conn.cursor()
         cursor.execute("PRAGMA table_info('alunos')")
         existing = [row[1] for row in cursor.fetchall()]
+#im getting: Error: table alunos has no column named email
 
         expected_columns = {
             'phone_number': "TEXT DEFAULT '+xx(xxx)xxxxx-xxxx'",
+            'email': "TEXT UNIQUE",
             'level': "INTEGER NOT NULL DEFAULT 1",
             'xp': "INTEGER NOT NULL DEFAULT 0",
             'materias': "TEXT DEFAULT '[]'",
             'cpf': "TEXT UNIQUE",
             'instituicao': "TEXT DEFAULT 'None'",
             'photo': "TEXT DEFAULT 'None'",
+            'salt': "TEXT",
         }
 
         for col, col_def in expected_columns.items():
@@ -82,7 +87,7 @@ def create_table_institutions(conn):
             CREATE TABLE IF NOT EXISTS instituicoes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 nome TEXT NOT NULL,
-                email TEXT UNIQUE,
+                email TEXT,
                 senha TEXT NOT NULL,
                 phone_number TEXT DEFAULT '+xx(xxx)xxxxx-xxxx',
                 photo TEXT DEFAULT 'None',
@@ -116,7 +121,7 @@ def get_students():
                 "nome": r.get("nome"),
                 "idade": r.get("idade"),
                 "email": r.get("email"),
-                "senha": r.get("senha"),
+                #"senha": r.get("senha"),
                 "phone_number": r.get("phone_number", "+xx(xxx)xxxxx-xxxx"),
                 "level": r.get("level", 1),
                 "xp": r.get("xp", 0),
@@ -132,15 +137,21 @@ def get_students():
             conn.close()
     return students
 
-def add_student(name, age, email, password, phone_number='+xx(xxx)xxxxx-xxxx', level=1, xp=0, materias='[]', cpf=None, instituicao='None', photo='None'):
+def add_student(name, age, email, password, phone_number='+xx(xxx)xxxxx-xxxx', level=1, xp=0, materias='[]', cpf=None, instituicao='None', photo='None', salt=''):
     conn = create_conn()
     try:
         create_table_students(conn)
         cursor = conn.cursor()
+
+        
+        hashedAndSalt = pass_hash.hash_password(password)
+        #print(hashedAndSalt)
+        hashed_password = hashedAndSalt[0]
+        salt = hashedAndSalt[1]
         cursor.execute("""
-            INSERT INTO alunos (nome, idade, email, senha, phone_number, level, xp, materias, cpf, instituicao, photo)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (name, age, email, password, phone_number, level, xp, materias, cpf, instituicao, photo))
+            INSERT INTO alunos (nome, idade, email, senha, phone_number, level, xp, materias, cpf, instituicao, photo, salt)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (name, age, email, hashed_password, phone_number, level, xp, materias, cpf, instituicao, photo, salt))
         conn.commit()
     except Error as e:
         print(f"Error: {e}")
@@ -190,3 +201,5 @@ def add_institution(name, email, password, phone_number='+xx(xxx)xxxxx-xxxx', ph
     finally:
         if conn:
             conn.close()
+
+
