@@ -161,31 +161,34 @@ def add_student(name, age, email, password, phone_number='+xx(xxx)xxxxx-xxxx', l
 
 def get_institutions():
     conn = create_conn()
-    institutions = []
+    students = []
     try:
-        create_table_institutions(conn)
+        create_table_students(conn)
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM instituicoes")
+        cursor.execute("SELECT * FROM alunos")
         rows = cursor.fetchall()
         for row in rows:
-            institutions.append({
-                "id": row[0],
-                "nome": row[1],
-                "email": row[2],
-                "senha": row[3],
-                "phone_number": row[4],
-                "photo": row[5],
-                "descricao": row[6],
-                "cursos": row[7],
-                "alunos": row[8],
-                "professores": row[9]
+            # convert Row to dict and use .get with defaults so missing columns
+            # (older DB schemas) don't cause IndexError
+            r = dict(row)
+            students.append({
+                "id": r.get("id"),
+                "nome": r.get("nome"),
+                "email": r.get("email"),
+                #"senha": r.get("senha"),
+                "phone_number": r.get("phone_number", "+xx(xxx)xxxxx-xxxx"),
+                "photo": r.get("photo", "None"),
+                "descricao": r.get("descricao", "None"),
+                "cursos": r.get("cursos", "[]"),
+                "alunos": r.get("alunos", "[]"),
+                "professores": r.get("professores", "[]")
             })
     except Error as e:
         print(f"Error: {e}")
     finally:
         if conn:
             conn.close()
-    return institutions
+    return students
 def add_institution(name, email, password, phone_number='+xx(xxx)xxxxx-xxxx', photo='None', descricao='None', cursos='[]', alunos='[]', professores='[]'):
     conn = create_conn()
     try:

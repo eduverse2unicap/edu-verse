@@ -138,12 +138,12 @@ body {
 
     <header class="main-header">
         <nav class="main-nav">
-            <a href="/site/html/index.html" class="logo"><img src="/site/style/imgs/site-logo.png" alt="EduVerse Logo"></a>
+            <a href="/html/index.html" class="logo"><img src="/style/imgs/site-logo.png" alt="EduVerse Logo"></a>
             <ul class="nav-links">
-                <li><a href="/site/html/index.html">Início</a></li>
-                <li><a href="/site/html/cadastro_aluno.html">Cadastro Aluno</a></li>
-                <li><a href="/site/html/cadastro_professor.html">Cadastro Professor</a></li>
-                <li><a href="/site/html/sobre.html">Sobre</a></li>
+                <li><a href="/html/index.html">Início</a></li>
+                <li><a href="/html/cadastro_aluno.html">Cadastro Aluno</a></li>
+                <li><a href="/html/cadastro_professor.html">Cadastro Professor</a></li>
+                <li><a href="/html/sobre.html">Sobre</a></li>
             </ul>
         </nav>
     </header>
@@ -198,6 +198,53 @@ body {
             </form>
         </div>
     </main>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.form-container form');
+    const senha = document.getElementById('senha');
 
+    function validatePassword(pw) {
+        const minLength = 8;
+        const hasUpper = /[A-Z]/.test(pw);
+        const hasNumber = /\d/.test(pw);
+        const hasSpecial = /[@$!%*?&#^()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pw);
+        return pw.length >= minLength && hasUpper && hasNumber && hasSpecial;
+    }
+
+    form.addEventListener('submit', function(e) {
+        const pw = senha.value || '';
+        if (!validatePassword(pw)) {
+            e.preventDefault();
+            alert('Senha insegura: use pelo menos 8 caracteres, incluindo letras maiúsculas, números e pelo menos um caractere especial (por exemplo @).');
+            senha.focus();
+        }
+    });
+
+    // Inline feedback element for password strength
+    const feedback = document.createElement('div');
+    feedback.style.marginTop = '8px';
+    feedback.style.fontSize = '0.9rem';
+    feedback.style.color = '#555';
+    senha.parentNode.appendChild(feedback);
+
+    senha.addEventListener('input', function() {
+        const pw = senha.value;
+        const hasUpper = /[A-Z]/.test(pw);
+        const hasNumber = /\d/.test(pw);
+        const hasSpecial = /[@$!%*?&#^()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pw);
+        const lenOk = pw.length >= 8;
+
+        const parts = [
+            lenOk ? '✓ 8+ caracteres' : '✗ 8+ caracteres',
+            hasUpper ? '✓ letra maiúscula' : '✗ letra maiúscula',
+            hasNumber ? '✓ número' : '✗ número',
+            hasSpecial ? '✓ caractere especial (@, #, ...)' : '✗ caractere especial (@, #, ...)'
+        ];
+
+        feedback.textContent = parts.join(' · ');
+        feedback.style.color = (lenOk && hasUpper && hasNumber && hasSpecial) ? '#218838' : '#c00';
+    });
+});
+</script>
 </body>
 </html>
