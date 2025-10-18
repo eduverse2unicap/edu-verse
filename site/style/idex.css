@@ -353,3 +353,17 @@ h3 {
 .questao-nav button:hover {
     background: #009624;
 }
+
+.logo {
+    margin: 30px 0 15px;
+    width: 220px;
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+@media (max-width: 480px) {
+    .logo {
+        width: 160px;
+    }
+}
