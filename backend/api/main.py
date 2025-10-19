@@ -63,6 +63,10 @@ def create_student(student: Student):
         tags = student.tags
     )
 
+@app.delete("/delete-student/{student_id}&{name}")
+def delete_student(student_id: int, name: str):
+    banco.delete_student(student_id, name)
+
 @app.get("/institutions")
 def get_institutions():
     return banco.get_institutions()

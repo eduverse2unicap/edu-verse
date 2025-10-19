@@ -151,6 +151,18 @@ def add_student(name, age, email, password, phone_number='+xx(xxx)xxxxx-xxxx', l
         if conn:
             conn.close()
 
+def delete_student(student_id: int, name: str):
+    conn = create_conn()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM alunos WHERE id = ? AND nome = ?", (student_id, name))
+        conn.commit()
+    except Error as e:
+        print(f"Error: {e}")
+    finally:
+        if conn:
+            conn.close()
+
 def get_institutions():
     conn = create_conn()
     institutions = []
