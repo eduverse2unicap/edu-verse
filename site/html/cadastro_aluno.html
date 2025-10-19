@@ -205,10 +205,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function validatePassword(pw) {
         const minLength = 8;
+        const maxLength = 32;
         const hasUpper = /[A-Z]/.test(pw);
         const hasNumber = /\d/.test(pw);
         const hasSpecial = /[@$!%*?&#^()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pw);
-        return pw.length >= minLength && hasUpper && hasNumber && hasSpecial;
+        return pw.length >= minLength && pw.length <= maxLength && hasUpper && hasNumber && hasSpecial;
     }
 
     form.addEventListener('submit', function(e) {
