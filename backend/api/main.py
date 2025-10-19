@@ -24,6 +24,7 @@ class Student(BaseModel):
     cpf: str
     instituicao: str = None
     photo: str = None
+    tags: str = '[]'
 
 class Institution(BaseModel):
     name: str
@@ -36,6 +37,14 @@ class Institution(BaseModel):
     cursos: str = '[]'
     alunos: str = '[]'
     professores: str = '[]'
+
+class Question(BaseModel):
+    enunciado: str
+    opcoes: str
+    resposta_certa: str
+    nivel_dificuldade: int
+    materia: str
+    tags: str = '[]'
 
 @app.post("/new-student")
 def create_student(student: Student):
@@ -50,7 +59,8 @@ def create_student(student: Student):
         materias = student.materias,
         cpf = student.cpf,
         instituicao = student.instituicao,
-        photo = student.photo
+        photo = student.photo,
+        tags = student.tags
     )
 
 @app.get("/institutions")
@@ -71,4 +81,6 @@ def create_institution(institution: Institution):
         professores = institution.professores
     )
 
- 
+@app.get('/questions')
+def get_questions():
+    return banco.get_questions()
