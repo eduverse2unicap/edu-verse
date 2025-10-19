@@ -84,3 +84,14 @@ def create_institution(institution: Institution):
 @app.get('/questions')
 def get_questions():
     return banco.get_questions()
+
+@app.post('/new-question')
+def create_question(question: Question):
+    banco.add_question(
+        enunciado=question.enunciado,
+        opcoes=question.opcoes,
+        resposta_certa=question.resposta_certa,
+        nivel_dificuldade=question.nivel_dificuldade,
+        materia=question.materia,
+        tags=question.tags
+    )

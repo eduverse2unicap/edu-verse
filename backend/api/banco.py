@@ -277,3 +277,18 @@ def get_questions():
         if conn:
             conn.close()
     return questions
+
+def add_question(enunciado, opcoes, resposta_certa, nivel_dificuldade, materia, tags='[]'):
+    conn = create_conn()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO perguntas (enunciado, opcoes, resposta_certa, nivel_dificuldade, materia, tags)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (enunciado, opcoes, resposta_certa, nivel_dificuldade, materia, tags))
+        conn.commit()
+    except Error as e:
+        print(f"Error: {e}")
+    finally:
+        if conn:
+            conn.close()
