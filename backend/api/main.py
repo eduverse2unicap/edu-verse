@@ -4,11 +4,11 @@ import banco
 
 app = FastAPI()
 
-@app.get("/")
+@app.get("/", tags=["Basic Endpoint"])
 def root():
     return {"status code": "200 ok"}
 
-@app.get("/students")
+@app.get("/students", tags=["Students"])
 def get_students():
     return banco.get_students()
 
@@ -46,7 +46,7 @@ class Question(BaseModel):
     materia: str
     tags: str = '[]'
 
-@app.post("/new-student")
+@app.post("/new-student", tags=["Students"])
 def create_student(student: Student):
     banco.add_student(
         name = student.name,
@@ -63,15 +63,15 @@ def create_student(student: Student):
         tags = student.tags
     )
 
-@app.delete("/delete-student/{student_id}&{name}")
+@app.delete("/delete-student/{student_id}&{name}", tags=["Students"])
 def delete_student(student_id: int, name: str):
     banco.delete_student(student_id, name)
 
-@app.get("/institutions")
+@app.get("/institutions", tags=["Institutions"])
 def get_institutions():
     return banco.get_institutions()
 
-@app.post("/new-institution")
+@app.post("/new-institution", tags=["Institutions"])
 def create_institution(institution: Institution):
     banco.add_institution(
         name = institution.name,
@@ -85,11 +85,16 @@ def create_institution(institution: Institution):
         professores = institution.professores
     )
 
-@app.get('/questions')
+@app.delete("/delete-institution/{institution_id}&{name}", tags=["Institutions"])
+def delete_institution(institution_id: int, name: str):
+    banco.delete_institution(institution_id, name)
+
+
+@app.get('/questions', tags=["Questions"])
 def get_questions():
     return banco.get_questions()
 
-@app.post('/new-question')
+@app.post('/new-question', tags=["Questions"])
 def create_question(question: Question):
     banco.add_question(
         enunciado=question.enunciado,
@@ -99,3 +104,7 @@ def create_question(question: Question):
         materia=question.materia,
         tags=question.tags
     )
+
+@app.delete('/delete-question/{question_id}&{enunciado}', tags=["Questions"])
+def delete_question(question_id: int, enunciado: str, tag: str = '[]'):
+    banco.delete_question(question_id, enunciado, tag)

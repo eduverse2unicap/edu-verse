@@ -209,6 +209,17 @@ def add_institution(name, email, password, phone_number='+xx(xxx)xxxxx-xxxx', ph
         if conn:
             conn.close()
 
+def delete_institution(institution_id: int, name: str):
+    conn = create_conn()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM instituicoes WHERE id = ? AND nome = ?", (institution_id, name))
+        conn.commit()
+    except Error as e:
+        print(f"Error: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 ## content from cursos
 
@@ -298,6 +309,18 @@ def add_question(enunciado, opcoes, resposta_certa, nivel_dificuldade, materia, 
             INSERT INTO perguntas (enunciado, opcoes, resposta_certa, nivel_dificuldade, materia, tags)
             VALUES (?, ?, ?, ?, ?, ?)
         """, (enunciado, opcoes, resposta_certa, nivel_dificuldade, materia, tags))
+        conn.commit()
+    except Error as e:
+        print(f"Error: {e}")
+    finally:
+        if conn:
+            conn.close()
+
+def delete_question(question_id: int, enunciado: str, tag: str = '[]'):
+    conn = create_conn()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM perguntas WHERE id = ? AND enunciado = ? AND tags = ?", (question_id, enunciado, tag))
         conn.commit()
     except Error as e:
         print(f"Error: {e}")
