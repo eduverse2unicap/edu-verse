@@ -34,7 +34,7 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
     
-        if (!validarSenha(senha)) {
+        if (!validarSenha(senhaInput.value)) {
           senhaErro.style.display = 'block';
           alert("A senha precisa conter pelo menos:\n- Uma letra maiúscula\n- Um número\n- Um caractere especial\n- E ter no mínimo 8 caracteres.");
           return;

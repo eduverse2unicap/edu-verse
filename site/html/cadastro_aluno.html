@@ -151,7 +151,7 @@ body {
     <main>
         <div class="form-container">
             <h1>Cadastro de Aluno</h1>
-            <form action="#" method="post">
+            <form id="cadastroAlunoForm" action="#" method="post">
                 
                 <div class="form-group">
                     <label for="nome">Nome completo</label>
@@ -198,54 +198,8 @@ body {
             </form>
         </div>
     </main>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('.form-container form');
-    const senha = document.getElementById('senha');
-
-    function validatePassword(pw) {
-        const minLength = 8;
-        const maxLength = 32;
-        const hasUpper = /[A-Z]/.test(pw);
-        const hasNumber = /\d/.test(pw);
-        const hasSpecial = /[@$!%*?&#^()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pw);
-        return pw.length >= minLength && pw.length <= maxLength && hasUpper && hasNumber && hasSpecial;
-    }
-
-    form.addEventListener('submit', function(e) {
-        const pw = senha.value || '';
-        if (!validatePassword(pw)) {
-            e.preventDefault();
-            alert('Senha insegura: use pelo menos 8 caracteres, incluindo letras maiúsculas, números e pelo menos um caractere especial (por exemplo @).');
-            senha.focus();
-        }
-    });
-
-    // Inline feedback element for password strength
-    const feedback = document.createElement('div');
-    feedback.style.marginTop = '8px';
-    feedback.style.fontSize = '0.9rem';
-    feedback.style.color = '#555';
-    senha.parentNode.appendChild(feedback);
-
-    senha.addEventListener('input', function() {
-        const pw = senha.value;
-        const hasUpper = /[A-Z]/.test(pw);
-        const hasNumber = /\d/.test(pw);
-        const hasSpecial = /[@$!%*?&#^()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pw);
-        const lenOk = pw.length >= 8;
-
-        const parts = [
-            lenOk ? '✓ 8+ caracteres' : '✗ 8+ caracteres',
-            hasUpper ? '✓ letra maiúscula' : '✗ letra maiúscula',
-            hasNumber ? '✓ número' : '✗ número',
-            hasSpecial ? '✓ caractere especial (@, #, ...)' : '✗ caractere especial (@, #, ...)'
-        ];
-
-        feedback.textContent = parts.join(' · ');
-        feedback.style.color = (lenOk && hasUpper && hasNumber && hasSpecial) ? '#218838' : '#c00';
-    });
-});
-</script>
+<div id="senhaErro" style="display:none; color:red; text-align:center; margin-top:10px;">A senha não atende aos requisitos.</div>
+<div id="msgSucesso" style="display:none; color:green; text-align:center; margin-top:10px;">Cadastro realizado com sucesso!</div>
+<script src="/script/cadastro_aluno.js"></script>
 </body>
 </html>
