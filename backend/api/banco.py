@@ -25,6 +25,32 @@ def create_conn():
         print(f"Erro geral na conexão: {e}")
     return conn
 
+def ensure_student_table_columns(conn):
+    """Garante que a tabela 'alunos' tenha todas as colunas esperadas."""
+    expected_columns = {
+        'phone_number': "TEXT DEFAULT '+xx(xxx)xxxxx-xxxx'",
+        'level': "INTEGER NOT NULL DEFAULT 1",
+        'xp': "INTEGER NOT NULL DEFAULT 0",
+        'materias': "TEXT DEFAULT '[]'",
+        'cpf': "TEXT UNIQUE NOT NULL",
+        'instituicao': "TEXT DEFAULT 'None'",
+        'photo': "TEXT DEFAULT 'None'",
+        'salt': "TEXT NOT NULL",
+        'tags': "TEXT DEFAULT '[]'"
+    }
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'alunos'")
+            existing_columns = [row[0] for row in cursor.fetchall()]
+
+            for col_name, col_def in expected_columns.items():
+                if col_name not in existing_columns:
+                    cursor.execute(f"ALTER TABLE alunos ADD COLUMN {col_name} {col_def}")
+                    print(f"Coluna '{col_name}' adicionada à tabela 'alunos'.")
+            conn.commit()
+    except Error as e:
+        print(f"Erro ao verificar/atualizar colunas de 'alunos': {e}")
+
 def create_table_students(conn):
     """Cria a tabela 'alunos' se ela não existir."""
     try:
@@ -49,8 +75,32 @@ def create_table_students(conn):
         """)
         conn.commit()
         print("Tabela 'alunos' pronta.")
+        ensure_student_table_columns(conn)
     except Error as e:
         print(f"Erro ao criar tabela 'alunos': {e}")
+
+def ensure_institution_table_columns(conn):
+    """Garante que a tabela 'instituicoes' tenha todas as colunas esperadas."""
+    expected_columns = {
+        'phone_number': "TEXT DEFAULT '+xx(xxx)xxxxx-xxxx'",
+        'photo': "TEXT DEFAULT 'None'",
+        'descricao': "TEXT DEFAULT 'None'",
+        'cursos': "TEXT DEFAULT '[]'",
+        'alunos': "TEXT DEFAULT '[]'",
+        'professores': "TEXT DEFAULT '[]'",
+        'salt': "TEXT NOT NULL"
+    }
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'instituicoes'")
+            existing_columns = [row[0] for row in cursor.fetchall()]
+            for col_name, col_def in expected_columns.items():
+                if col_name not in existing_columns:
+                    cursor.execute(f"ALTER TABLE instituicoes ADD COLUMN {col_name} {col_def}")
+                    print(f"Coluna '{col_name}' adicionada à tabela 'instituicoes'.")
+            conn.commit()
+    except Error as e:
+        print(f"Erro ao verificar/atualizar colunas de 'instituicoes': {e}")
 
 def create_table_institutions(conn):
     """Cria a tabela 'instituicoes' se ela não existir."""
@@ -73,6 +123,7 @@ def create_table_institutions(conn):
         """)
         conn.commit()
         print("Tabela 'instituicoes' pronta.")
+        ensure_institution_table_columns(conn)
     except Error as e:
         print(f"Erro ao criar tabela 'instituicoes': {e}")
 
@@ -162,6 +213,25 @@ def delete_institution(institution_id: int, name: str):
         if conn:
             conn.close()
 
+def ensure_question_table_columns(conn):
+    """Garante que a tabela 'perguntas' tenha todas as colunas esperadas."""
+    expected_columns = {
+        'nivel_dificuldade': 'INTEGER NOT NULL',
+        'materia': 'TEXT NOT NULL',
+        'tags': "TEXT DEFAULT '[]'"
+    }
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'perguntas'")
+            existing_columns = [row[0] for row in cursor.fetchall()]
+            for col_name, col_def in expected_columns.items():
+                if col_name not in existing_columns:
+                    cursor.execute(f"ALTER TABLE perguntas ADD COLUMN {col_name} {col_def}")
+                    print(f"Coluna '{col_name}' adicionada à tabela 'perguntas'.")
+            conn.commit()
+    except Error as e:
+        print(f"Erro ao verificar/atualizar colunas de 'perguntas': {e}")
+
 def create_table_questions(conn):
     """Cria a tabela 'perguntas' se ela não existir."""
     try:
@@ -179,6 +249,7 @@ def create_table_questions(conn):
         """)
         conn.commit()
         print("Tabela 'perguntas' pronta.")
+        ensure_question_table_columns(conn)
     except Error as e:
         print(f"Erro ao criar tabela 'perguntas': {e}")
 
@@ -224,3 +295,64 @@ def delete_question(question_id: int, enunciado: str, tag: str = '[]'):
     finally:
         if conn:
             conn.close()
+
+def create_all_tables():
+    conn = create_conn()
+    if conn:
+        create_table_students(conn)
+        ensure_student_table_columns(conn)
+        create_table_institutions(conn)
+        ensure_institution_table_columns(conn)
+        create_table_questions(conn)
+        ensure_question_table_columns(conn)
+        create_table_teachers(conn)
+        ensure_teacher_table_columns(conn)
+        conn.close()
+
+def ensure_teacher_table_columns(conn):
+    """Garante que a tabela 'professores' tenha todas as colunas esperadas."""
+    expected_columns = {
+        'phone_number': "TEXT DEFAULT '+xx(xxx)xxxxx-xxxx'",
+        'instituicao': "TEXT DEFAULT 'None'",
+        'photo': "TEXT DEFAULT 'None'",
+        'salt': "TEXT NOT NULL",
+        'materias': "TEXT DEFAULT '[]'",
+        'tags': "TEXT DEFAULT '[]'"
+    }
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'professores'")
+            existing_columns = [row[0] for row in cursor.fetchall()]
+            for col_name, col_def in expected_columns.items():
+                if col_name not in existing_columns:
+                    cursor.execute(f"ALTER TABLE professores ADD COLUMN {col_name} {col_def}")
+                    print(f"Coluna '{col_name}' adicionada à tabela 'professores'.")
+            conn.commit()
+    except Error as e:
+        print(f"Erro ao verificar/atualizar colunas de 'professores': {e}")
+
+def create_table_teachers(conn):
+    """Cria a tabela 'professores' se ela não existir."""
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS professores (
+                    id SERIAL PRIMARY KEY,
+                    nome TEXT NOT NULL,
+                    email TEXT UNIQUE NOT NULL,
+                    senha TEXT NOT NULL,
+                    phone_number TEXT DEFAULT '+xx(xxx)xxxxx-xxxx',
+                    instituicao TEXT DEFAULT 'None',
+                    photo TEXT DEFAULT 'None',
+                    salt TEXT NOT NULL,
+                    materias TEXT DEFAULT '[]',
+                    tags TEXT DEFAULT '[]'
+                )
+            """)
+        conn.commit()
+        print("Tabela 'professores' pronta.")
+        ensure_teacher_table_columns(conn)
+    except Error as e:
+        print(f"Erro ao criar tabela 'professores': {e}")
+
+

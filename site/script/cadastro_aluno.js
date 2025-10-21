@@ -49,11 +49,16 @@
           cpf: document.getElementById('cpf').value.trim(), // Certifique-se de que existe um input com id="cpf"
         };
 
+        // Define a URL base da API dinamicamente.
+        // Se estiver em localhost, usa o servidor local.
+        // Se estiver em produção (Vercel), usa o caminho relativo '/api'.
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const API_BASE_URL = isLocal ? 'http://127.0.0.1:8000' : '/api';
+
         // 2. Enviar os dados para a API
         try {
-          // O endpoint da API é relativo: /api/new-student
-          // A Vercel saberá como redirecionar para sua função Python.
-          const response = await fetch('/api/new-student', {
+          // A Vercel redireciona chamadas de /api/... para a sua função Python.
+          const response = await fetch(`${API_BASE_URL}/new-student`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

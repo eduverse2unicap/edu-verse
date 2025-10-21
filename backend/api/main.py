@@ -24,6 +24,11 @@ app = FastAPI(
     openapi_tags=tags_metadata
 )
 
+# Garante que todas as tabelas e suas colunas existam na inicialização da aplicação
+@app.on_event("startup")
+async def startup_event():
+    banco.create_all_tables()
+
 @app.get("/", tags=["Root"])
 def root():
     return {"status code": "200 ok"}
@@ -64,6 +69,16 @@ class Question(BaseModel):
     resposta_certa: str
     nivel_dificuldade: int
     materia: str
+    tags: str = '[]'
+
+class Teacher(BaseModel):
+    name: str
+    email: str = None
+    senha: str
+    phone_number: str = None
+    photo: str = None
+    disciplinas: str = '[]'
+    instituicao: str = None
     tags: str = '[]'
 
 @app.post("/new-student", tags=["Students"])
@@ -126,5 +141,5 @@ def create_question(question: Question):
     )
 
 @app.delete('/delete-question/{question_id}&{enunciado}', tags=["Questions"])
-def delete_question(question_id: int, enunciado: str, tag: str = '[]'):
-    banco.delete_question(question_id, enunciado, tag)
+def delete_question(question_id: int, enunciado: str, tags: str = '[]'):
+    banco.delete_question(question_id, enunciado, tags)
