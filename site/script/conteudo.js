@@ -2,7 +2,7 @@ let arquivoBase64 = null;
 
 // Função para voltar para main.html
 function voltarInicio() {
-    window.location.href = "main.html";
+    window.location.href = "/";
 }
 
 // Verifica o código do professor
