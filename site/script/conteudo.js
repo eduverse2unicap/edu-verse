@@ -21,27 +21,6 @@ function verificarCodigo() {
     }
 }
 
-
-
-{
-    function verificarCodigo() {
-        const codigo = document.getElementById("codigoProfessor").value.trim();
-        const CODIGO_CORRETO = "prof35"; // Substitua pelo seu código real
-        const materiaProfessor = "Ingles"; // Exemplo: a matéria do professor
-
-        if (codigo === CODIGO_CORRETO) {
-            document.getElementById("formConteudo").style.display = "block";
-            document.getElementById("materia").value = materiaProfessor;
-            document.getElementById("msg").innerText = "✅ Código válido! Você pode cadastrar conteúdos.";
-        } else {
-            alert("❌ Código incorreto! Apenas professores podem adicionar conteúdos.");
-            document.getElementById("formConteudo").style.display = "none";
-        }
-    }
-
-}
-
-
 // Pré-visualização da imagem
 document.getElementById("imagem").addEventListener("change", function() {
     const preview = document.getElementById("preview");

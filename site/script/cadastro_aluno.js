@@ -1,5 +1,10 @@
     document.addEventListener('DOMContentLoaded', () => {
       const form = document.getElementById('cadastroAlunoForm');
+      // You need to initialize Supabase here as well.
+      // Make sure this file has access to the Supabase client library.
+      const supabaseUrl = 'https://iiplwwaegrofgknpoxtu.supabase.co';
+      const supabaseKey = 'YOUR_SUPABASE_ANON_KEY'; // Replace with your actual anon key
+      const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
       const senhaInput = document.getElementById('senha');
       const senhaErro = document.getElementById('senhaErro');
       const msgSucesso = document.getElementById('msgSucesso');
@@ -40,43 +45,32 @@
           return;
         }
 
-        // 1. Coletar os dados do formulário
-        const studentData = {
-          name: document.getElementById('nome').value.trim(),
-          idade: parseInt(document.getElementById('idade').value, 10), // Certifique-se de que existe um input com id="idade"
-          email: document.getElementById('email').value.trim(),
-          senha: senhaInput.value.trim(),
-          cpf: document.getElementById('cpf').value.trim(), // Certifique-se de que existe um input com id="cpf"
-        };
-
-        // Define a URL base da API dinamicamente.
-        // Se estiver em localhost, usa o servidor local.
-        // Se estiver em produção (Vercel), usa o caminho relativo '/api'.
-        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const API_BASE_URL = isLocal ? 'http://127.0.0.1:8000' : '/api';
-
-        // 2. Enviar os dados para a API
+        // 1. Coletar dados
+        const email = document.getElementById('email').value.trim();
+        const password = senhaInput.value;
+        const fullName = document.getElementById('nome').value.trim();
+        
+        // 2. Usar Supabase Auth para registrar o usuário
         try {
-          // A Vercel redireciona chamadas de /api/... para a sua função Python.
-          const response = await fetch(`${API_BASE_URL}/new-student`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(studentData),
+          const { data, error } = await supabase.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+              data: { 
+                full_name: fullName,
+                // You can add other metadata here
+              }
+            }
           });
 
-          if (response.ok) {
-            // Sucesso!
-            console.log("✅ Aluno cadastrado com sucesso!");
+          if (error) throw error;
+
+          console.log("✅ Cadastro realizado! Verifique seu e-mail para confirmação.", data);
             msgSucesso.style.display = 'block';
             form.reset();
             senhaInput.style.borderColor = '#ccc';
-          } else {
-            // Erro do servidor
-            const errorData = await response.json();
-            alert(`Erro ao cadastrar: ${errorData.detail || 'Erro desconhecido'}`);
-          }
+            alert('Cadastro realizado com sucesso! Um link de confirmação foi enviado para o seu e-mail.');
+
         } catch (error) {
           // Erro de rede
           console.error('Falha na comunicação com a API:', error);

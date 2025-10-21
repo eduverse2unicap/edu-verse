@@ -1,25 +1,19 @@
 // 🔗 Conexão com o Supabase
 const supabaseUrl = 'https://iiplwwaegrofgknpoxtu.supabase.co'
-const supabaseKey = process.env.SUPABASE_KEY
-const supabase = createClient(supabaseUrl, supabaseKey)
+// IMPORTANT: Use your ANON KEY, not the service_role key, in the browser.
+const supabaseKey = 'YOUR_SUPABASE_ANON_KEY'; // Replace with your actual anon key
+const { createClient } = window.supabase
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 let xp = 0;
 let level = 1;
-let userName = "Usuário";
+let currentUser = null; // Will hold the logged-in user object
+
 const xpBar = document.getElementById("xp-progress");
 const xpText = document.getElementById("xp");
 const levelText = document.getElementById("level");
 const userNameText = document.getElementById("user-name");
 const rankingList = document.getElementById("ranking-list");
-
-// Carregar dados do localStorage
-if (localStorage.getItem('userData')) {
-    const data = JSON.parse(localStorage.getItem('userData'));
-    userName = data.userName;
-    xp = data.xp;
-    level = data.level;
-    userNameText.textContent = userName;
-}
 
 // Ranking inicial
 let ranking = JSON.parse(localStorage.getItem('ranking')) || [{
@@ -31,17 +25,11 @@ let ranking = JSON.parse(localStorage.getItem('ranking')) || [{
 }, {
     name: "Charlie",
     xp: 10
-}, {
-    name: userName,
-    xp: xp
 }];
 
 function saveUser() {
-    localStorage.setItem('userData', JSON.stringify({
-        userName,
-        xp,
-        level
-    }));
+    // We no longer save user data to localStorage this way.
+    // Supabase handles the session. We might save game progress to the database later.
     localStorage.setItem('ranking', JSON.stringify(ranking));
 }
 
@@ -84,12 +72,15 @@ function updateXP() {
     xpBar.style.width = xp + "%";
     xpText.innerText = xp;
     levelText.innerText = level;
-    let userObj = ranking.find(p => p.name === userName);
-    if (userObj) userObj.xp = level * 100 + xp;
-    else ranking.push({
-        name: userName,
-        xp: level * 100 + xp
-    });
+    if (currentUser) {
+        let userInRanking = ranking.find(p => p.id === currentUser.id);
+        if (userInRanking) {
+            userInRanking.xp = level * 100 + xp;
+        } else {
+            // Add user to ranking if not present
+            ranking.push({ id: currentUser.id, name: currentUser.user_metadata.full_name, xp: level * 100 + xp });
+        }
+    }
     updateRanking();
 }
 
@@ -108,7 +99,8 @@ function updateRanking() {
 
         const xpTd = document.createElement('td');
         const xpBarContainer = document.createElement('div');
-        xpBarContainer.style.width = "100px";
+        xpBarContainer.style.maxWidth = "100px"; // Use max-width for flexibility
+        xpBarContainer.style.width = "100%";      // Allow it to shrink
         xpBarContainer.style.height = "10px";
         xpBarContainer.style.background = "#ccc";
         xpBarContainer.style.borderRadius = "5px";
@@ -147,26 +139,42 @@ function updateRanking() {
     saveUser();
 }
 
-function registerUser() {
-    const nomeInput = document.getElementById("nome").value;
-    const emailInput = document.getElementById("email").value;
-    const senhaInput = document.getElementById("senha").value;
+// This function is now replaced by the form in cadastro_aluno.html
+// We will create a login function instead.
+async function loginUser() {
+    const email = prompt("Digite seu e-mail:");
+    const password = prompt("Digite sua senha:");
 
-    if (nomeInput && emailInput && senhaInput) {
-        userName = nomeInput;
-        userNameText.textContent = userName;
+    if (!email || !password) {
+        alert("E-mail e senha são obrigatórios.");
+        return;
+    }
 
-        if (!ranking.find(p => p.name === userName))
-            ranking.push({
-                name: userName,
-                xp: 0
-            });
+    try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password,
+        });
 
-        alert(`Cadastro realizado! Bem-vindo(a) ${userName}!\nUse suas abas de conhecimento para ganhar XP e subir no ranking!`);
+        if (error) throw error;
 
-        saveUser();
-        updateXP();
-    } else alert("Por favor, preencha todos os campos para se cadastrar.");
+        console.log("Login successful!", data);
+        // The onAuthStateChange listener will handle updating the UI
+
+    } catch (error) {
+        alert(`Erro no login: ${error.message}`);
+    }
+}
+
+async function logoutUser() {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+        console.error("Error logging out:", error);
+    } else {
+        // The onAuthStateChange listener will reset the UI
+        console.log("Logged out successfully.");
+        window.location.reload(); // Reload to clear state
+    }
 }
 
 
@@ -195,6 +203,40 @@ fetch('materias.json')
         });
     });
 
+// Listen for authentication changes (login, logout)
+supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+        currentUser = session.user;
+        console.log('User signed in:', currentUser);
+        // Set user details in the UI
+        userNameText.textContent = currentUser.user_metadata.full_name || currentUser.email;
+        // TODO: Load user's XP and level from your Supabase database
+        // For now, we reset it
+        xp = 0;
+        level = 1;
+        
+        // Add user to ranking if not already there
+        if (!ranking.find(p => p.id === currentUser.id)) {
+            ranking.push({ id: currentUser.id, name: userNameText.textContent, xp: 0 });
+        }
+
+        // Hide login/register buttons and show logout button
+        document.getElementById('login-btn').style.display = 'none';
+        document.getElementById('logout-btn').style.display = 'block';
+
+    } else if (event === 'SIGNED_OUT') {
+        currentUser = null;
+        userNameText.textContent = "Visitante";
+        // Hide logout button and show login/register buttons
+        document.getElementById('login-btn').style.display = 'block';
+        document.getElementById('logout-btn').style.display = 'none';
+    }
+    // Update UI regardless of state
+    updateXP();
+    updateRanking();
+});
+
+// Initial call to set up the UI based on any existing session
 updateXP();
 updateRanking();
 
