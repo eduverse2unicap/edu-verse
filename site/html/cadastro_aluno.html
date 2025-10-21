@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Aluno - EduVerse</title>
     <style>
+/* Reset e base */
 * {
     margin: 0;
     padding: 0;
@@ -18,8 +19,9 @@ body {
     line-height: 1.6;
 }
 
+
 .main-header {
-    background-color: #28a745; 
+    background-color: #28a745;
     padding: 1rem 2rem;
     color: white;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -31,11 +33,14 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
 }
 
+/* Logo */
 .logo {
     display: flex;
     align-items: center;
+    text-decoration: none;
 }
 
 .logo img {
@@ -51,14 +56,26 @@ body {
 .logo span {
     font-size: 1.8rem;
     font-weight: bold;
-    text-decoration: none;
     color: white;
 }
 
+/* Botão para mobile */
+.menu-toggle {
+    display: none;
+    background: transparent;
+    border: 2px solid rgba(255,255,255,0.7);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* Links de navegação */
 .nav-links {
     list-style: none;
     display: flex;
     gap: 20px;
+    align-items: center;
 }
 
 .nav-links a {
@@ -74,6 +91,7 @@ body {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
+/* Formulário */
 .form-container {
     max-width: 700px;
     margin: 40px auto;
@@ -131,15 +149,86 @@ body {
 .submit-btn:hover {
     background-color: #218838;
 }
+
+/* Imagens responsivas */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Regras responsivas */
+/* Tablet e laptops pequenos */
+@media (max-width: 992px) {
+    .main-nav { padding: 0 1rem; }
+    .logo img { max-height: 80px; height: auto; }
+    .form-container { padding: 30px; margin: 30px 16px; max-width: 680px; }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .main-nav {
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .menu-toggle { display: inline-flex; align-items: center; justify-content: center; }
+
+    /* Esconder links por padrão no mobile */
+    .nav-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        gap: 0;
+        background: rgba(255,255,255,0.03);
+        margin-top: 8px;
+        padding: 8px;
+        border-radius: 6px;
+    }
+
+    .nav-links li { width: 100%; }
+
+    .nav-links a {
+        display: block;
+        width: 100%;
+        padding: 10px 12px;
+    }
+
+    .main-nav.open .nav-links { display: flex; }
+
+    .logo img { max-height: 60px; margin-right: 8px; }
+
+    .form-container {
+        padding: 20px;
+        margin: 20px 12px;
+        max-width: 96%;
+    }
+
+    .form-control { padding: 10px; font-size: 0.95rem; }
+    .submit-btn { padding: 12px; font-size: 1rem; }
+}
+
+/* Telefones muito pequenos */
+@media (max-width: 420px) {
+    .main-header { padding: 0.6rem 0.8rem; }
+    .logo span { font-size: 1.2rem; }
+    .logo img { max-height: 48px; }
+    .form-container { padding: 16px; margin: 16px 8px; }
+    .form-group label { font-size: 0.95rem; }
+}
     </style>
 </head>
 
 <body>
 
     <header class="main-header">
-        <nav class="main-nav">
-            <a href="/site/html/index.html" class="logo"><img src="/site/style/imgs/site-logo.png" alt="EduVerse Logo"></a>
-            <ul class="nav-links">
+        <nav class="main-nav" id="mainNav">
+            <a href="/site/html/index.html" class="logo"><img src="/site/style/imgs/site-logo.png" alt="EduVerse Logo"><span style="display:none;">EduVerse</span></a>
+
+            <!-- botão de menu para mobile -->
+            <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="primaryNav">Menu</button>
+
+            <ul class="nav-links" id="primaryNav">
                 <li><a href="/site/html/index.html">Início</a></li>
                 <li><a href="/site/html/cadastro_aluno.html">Cadastro Aluno</a></li>
                 <li><a href="/site/html/cadastro_professor.html">Cadastro Professor</a></li>
@@ -151,7 +240,7 @@ body {
     <main>
         <div class="form-container">
             <h1>Cadastro de Aluno</h1>
-            <form id="cadastroAlunoForm" action="#" method="post">
+            <form id="cadastroAlunoForm" action="#" method="post" novalidate>
                 
                 <div class="form-group">
                     <label for="nome">Nome completo</label>
@@ -198,8 +287,43 @@ body {
             </form>
         </div>
     </main>
+
 <div id="senhaErro" style="display:none; color:red; text-align:center; margin-top:10px;">A senha não atende aos requisitos.</div>
 <div id="msgSucesso" style="display:none; color:green; text-align:center; margin-top:10px;">Cadastro realizado com sucesso!</div>
+
+<!-- script para alternar menu no mobile -->
+<script>
+(function(){
+    const menuToggle = document.getElementById('menuToggle');
+    const mainNav = document.getElementById('mainNav');
+
+    if(!menuToggle) return;
+
+    menuToggle.addEventListener('click', function(e){
+        e.stopPropagation();
+        const expanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', String(!expanded));
+        mainNav.classList.toggle('open');
+    });
+
+    // Fecha o menu se clicar fora (mobile)
+    document.addEventListener('click', function(e){
+        if(!mainNav.contains(e.target) && mainNav.classList.contains('open')) {
+            mainNav.classList.remove('open');
+            menuToggle.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    // fecha menu ao redimensionar para desktop
+    window.addEventListener('resize', function(){
+        if(window.innerWidth > 768 && mainNav.classList.contains('open')) {
+            mainNav.classList.remove('open');
+            menuToggle.setAttribute('aria-expanded', 'false');
+        }
+    });
+})();
+</script>
+
 <script src="/site/script/cadastro_aluno.js"></script>
 </body>
 </html>
