@@ -2,9 +2,29 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import banco
 
-app = FastAPI()
+tags_metadata = [
+    {
+        "name": "Students",
+        "description": "Operações com estudantes. Crie, leia e delete estudantes.",
+    },
+    {
+        "name": "Institutions",
+        "description": "Gerencie as instituições de ensino.",
+    },
+    {
+        "name": "Questions",
+        "description": "Endpoints para gerenciar as perguntas da plataforma.",
+    },
+]
 
-@app.get("/", tags=["Basic Endpoint"])
+app = FastAPI(
+    title="Edu-Verse API",
+    version="1.1.6",
+    description="API para a plataforma de aprendizado Edu-Verse. Use os endpoints abaixo para interagir com os dados.",
+    openapi_tags=tags_metadata
+)
+
+@app.get("/", tags=["Root"])
 def root():
     return {"status code": "200 ok"}
 
