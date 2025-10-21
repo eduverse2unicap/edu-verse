@@ -31,24 +31,51 @@
       });
     
       // Envio do formulário
-      form.addEventListener('submit', (e) => {
+      form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const nome = document.getElementById('nome').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const senha = senhaInput.value.trim();
     
         if (!validarSenha(senha)) {
           senhaErro.style.display = 'block';
           alert("A senha precisa conter pelo menos:\n- Uma letra maiúscula\n- Um número\n- Um caractere especial\n- E ter no mínimo 8 caracteres.");
           return;
         }
-    
-        // Aqui você pode enviar para o Supabase (substituindo o localStorage)
-        const novoAluno = { nome, email, senha };
-        console.log("✅ Aluno cadastrado:", novoAluno);
-    
-        msgSucesso.style.display = 'block';
-        form.reset();
-        senhaInput.style.borderColor = '#ccc';
+
+        // 1. Coletar os dados do formulário
+        const studentData = {
+          name: document.getElementById('nome').value.trim(),
+          idade: parseInt(document.getElementById('idade').value, 10), // Certifique-se de que existe um input com id="idade"
+          email: document.getElementById('email').value.trim(),
+          senha: senhaInput.value.trim(),
+          cpf: document.getElementById('cpf').value.trim(), // Certifique-se de que existe um input com id="cpf"
+        };
+
+        // 2. Enviar os dados para a API
+        try {
+          // O endpoint da API é relativo: /api/new-student
+          // A Vercel saberá como redirecionar para sua função Python.
+          const response = await fetch('/api/new-student', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(studentData),
+          });
+
+          if (response.ok) {
+            // Sucesso!
+            console.log("✅ Aluno cadastrado com sucesso!");
+            msgSucesso.style.display = 'block';
+            form.reset();
+            senhaInput.style.borderColor = '#ccc';
+          } else {
+            // Erro do servidor
+            const errorData = await response.json();
+            alert(`Erro ao cadastrar: ${errorData.detail || 'Erro desconhecido'}`);
+          }
+        } catch (error) {
+          // Erro de rede
+          console.error('Falha na comunicação com a API:', error);
+          alert('Não foi possível conectar ao servidor. Tente novamente mais tarde.');
+        }
       });
     });
