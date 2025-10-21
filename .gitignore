@@ -1,3 +1,11 @@
+# Ignorar arquivos de ambiente com senhas e segredos
+.env
+
+# Ignorar pastas de cache do Python
+__pycache__/
+*.pyc
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -27,3 +35,6 @@ htmlcov/
 
 # Logs
 *.log
+*.log.*
+logs/
+logs/*
