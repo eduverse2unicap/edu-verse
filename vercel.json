@@ -19,7 +19,7 @@
       "handle": "filesystem"
     },
     {
-      "src": "/(.*\\.html)",
+      "src": "/(.*)",
       "dest": "/site/html/$1"
     }
   ]
