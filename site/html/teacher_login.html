@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Professor - EduVerse</title>
+    <link rel="stylesheet" href="/site/style/teacher_login.css">
+</head>
+
+<body>
+
+    <header class="main-header">
+        <nav class="main-nav">
+            <a href="/site/html/index.html" class="logo">
+                <img src="/site/style/imgs/site-logo.png" alt="EduVerse Logo">
+            </a>
+            <ul class="nav-links">
+                <li><a href="/site/html/index.html">Início</a></li>
+                <li><a href="/site/html/cadastro_aluno.html">Cadastro Aluno</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="login-container">
+            <img src="/site/style/imgs/site-logo.png" alt="EduVerse Logo" class="logo-form">
+            <h2>Login do Professor</h2>
+            <form id="teacherLoginForm">
+                <div class="input-group">
+                    <label for="email">E-mail:</label>
+                    <input type="email" id="email" class="form-control" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Senha:</label>
+                    <input type="password" id="password" class="form-control" required>
+                </div>
+                <button type="submit" class="submit-btn">Entrar</button>
+                <p id="message" class="message"></p>
+            </form>
+            <p class="back-link"><a href="/site/html/index.html">Voltar para o Início</a></p>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/site/script/teacher_login.js"></script>
+</body>
+
+</html>
