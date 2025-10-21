@@ -5,20 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduVerse - Abas + XP</title>
-    <link rel="stylesheet" href="/style/index.css">
+    <link rel="stylesheet" href="/site/style/index.css">
 </head>
 
 <body>
 
     <header>
-        <a href="index.html" title="Voltar ao Início" id="logo">
-            <img src="/style/imgs/site-logo.png" alt="EduVerse - Voltar ao Início" class="logo">
+        <a href="/site/html/index.html" title="Voltar ao Início" id="logo">
+            <img src="/site/style/imgs/site-logo.png" alt="EduVerse - Voltar ao Início" class="logo">
         </a>
         <nav>
             <button class="tab-btn active" onclick="showTab(event,'inicio')">Início</button>
             <button class="tab-btn" onclick="showTab(event,'login')">Login/Cadastro</button>
             <button class="tab-btn" onclick="showTab(event,'areas')">Áreas</button>
-            <a href="conteudo.html" class="tab-btn">Cadastro de Conteúdos</a>
+            <a href="/site/html/conteudo.html" class="tab-btn">Cadastro de Conteúdos</a>
             <button onclick="toggleDarkMode()">🌙</button>
         </nav>
     </header>
@@ -32,7 +32,7 @@
                     verdadeira aventura cósmica. 🌌✨ Participe das ligas semanais, conquiste pontos de XP e suba no ranking.</p>
             </div>
             <div class="rocket-container">
-                <img id="rocket" src="/style/imgs/foguete mascote.png" alt="Foguete Mascote">
+                <img id="rocket" src="/site/style/imgs/foguete mascote.png" alt="Foguete Mascote">
             </div>
         </div>
     </section>
@@ -46,7 +46,7 @@
             <input type="password" placeholder="Senha" id="senha">
             <button onclick="registerUser()">Entrar</button>
             <p style="text-align:center; margin-top:15px;">
-                Ainda não tem conta? <a href="cadastro_aluno.html" style="text-decoration:none; color:black;">Cadastre-se</a>
+                Ainda não tem conta? <a href="/site/html/cadastro_aluno.html" style="text-decoration:none; color:black;">Cadastre-se</a>
             </p>
         </div>
     </section>
@@ -127,7 +127,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <script src="/script/index.js"></script>
+    <script src="/site/script/index.js"></script>
 </body>
 
 </html>

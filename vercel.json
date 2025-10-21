@@ -20,7 +20,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/site/html/$1"
+      "dest": "/site/$1"
     }
   ]
 }
