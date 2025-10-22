@@ -240,8 +240,8 @@ img {
     <main>
         <div class="form-container">
             <h1>Cadastro de Aluno</h1>
-            <!-- Adicione o action para jogar para a api -->
-            <form id="cadastroAlunoForm" action="/api/alunos" method="post" novalidate>
+            <!-- O action e method foram removidos pois o envio é feito via JavaScript com Supabase -->
+            <form id="cadastroAlunoForm" novalidate>
 
                 <div class="form-group">
                     <label for="nome">Nome completo</label>
@@ -338,7 +338,8 @@ img {
     });
 })();
 </script>
-
+<!-- Adicionando o client do Supabase, que estava faltando -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/site/script/cadastro_aluno.js"></script>
 </body>
 </html>

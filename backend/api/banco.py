@@ -2,7 +2,7 @@ import psycopg2
 from psycopg2 import Error
 from psycopg2.extras import RealDictCursor
 import os
-import pass_hash
+from . import pass_hash
 from dotenv import load_dotenv
 
 

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import banco
+from . import banco
 
 tags_metadata = [
     {
