@@ -240,8 +240,9 @@ img {
     <main>
         <div class="form-container">
             <h1>Cadastro de Aluno</h1>
-            <form id="cadastroAlunoForm" action="#" method="post" novalidate>
-                
+            <!-- Adicione o action para jogar para a api -->
+            <form id="cadastroAlunoForm" action="/api/alunos" method="post" novalidate>
+
                 <div class="form-group">
                     <label for="nome">Nome completo</label>
                     <input type="text" id="nome" name="nome" class="form-control" placeholder="Digite seu nome completo" required>
