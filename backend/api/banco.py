@@ -5,6 +5,8 @@ import os
 import pass_hash
 from dotenv import load_dotenv
 
+
+
 # Carrega as variáveis do arquivo .env para o ambiente
 load_dotenv()
 # A Vercel injeta a variável como POSTGRES_URL. Para outros provedores, pode ser DATABASE_URL.
@@ -355,4 +357,46 @@ def create_table_teachers(conn):
     except Error as e:
         print(f"Erro ao criar tabela 'professores': {e}")
 
+def login_student(email, password):
+    conn = create_conn()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT id, senha, salt FROM alunos WHERE email = %s", (email,))
+            student_data = cursor.fetchone()
+            if student_data:
+                stored_hash = student_data['senha']
+                stored_salt = student_data['salt']
+                if pass_hash.verify_password(password, stored_hash, stored_salt):
+                    return {"message": "Login de estudante bem-sucedido", "student_id": student_data['id']}
+                else:
+                    return {"message": "Senha incorreta"}
+            else:
+                return {"message": "Estudante não encontrado"}
+    except Error as e:
+        print(f"Erro ao fazer login do estudante: {e}")
+        return {"message": "Erro interno do servidor"}
+    finally:
+        if conn:
+            conn.close()
 
+def login_teacher(email, password):
+    conn = create_conn()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT id, senha, salt FROM professores WHERE email = %s", (email,))
+            teacher_data = cursor.fetchone()
+            if teacher_data:
+                stored_hash = teacher_data['senha']
+                stored_salt = teacher_data['salt']
+                if pass_hash.verify_password(password, stored_hash, stored_salt):
+                    return {"message": "Login de professor bem-sucedido", "teacher_id": teacher_data['id']}
+                else:
+                    return {"message": "Senha incorreta"}
+            else:
+                return {"message": "Professor não encontrado"}
+    except Error as e:
+        print(f"Erro ao fazer login do professor: {e}")
+        return {"message": "Erro interno do servidor"}
+    finally:
+        if conn:
+            conn.close()
