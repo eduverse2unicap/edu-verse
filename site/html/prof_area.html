@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel do Professor - EduVerse</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/site/style/prof_area.css">
+</head>
+
+<body>
+  <header class="header">
+    <h1> Painel do Professor</h1>
+    <div class="header-right">
+      <button id="darkModeBtn" onclick="alternarTema()">🌙</button>
+      <button id="logoutBtn" onclick="sair()">Sair</button>
+    </div>
+  </header>
+
+  <!-- Abas -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="alunos">📋 Alunos</button>
+    <button class="tab-btn" data-tab="atividades">🧩 Atividades</button>
+    <button class="tab-btn" data-tab="nova">➕ Criar Nova</button>
+    <button class="tab-btn" data-tab="perfil">⚙️ Perfil</button>
+  </div>
+
+  <div class="container">
+    <!-- 🧑‍🎓 ABA ALUNOS -->
+    <div id="alunos" class="tab-content active">
+      <div class="card">
+        <h2>📋 Lista de Alunos e Entregas</h2>
+        <table id="tabela-alunos">
+          <thead>
+            <tr>
+              <th>Aluno</th>
+              <th>Atividade</th>
+              <th>Status</th>
+              <th>Data de Entrega</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Ana Souza</td>
+              <td>Verbos em Inglês</td>
+              <td class="status entregue">Entregue</td>
+              <td>18/10/2025</td>
+            </tr>
+            <tr>
+              <td>Lucas Ferreira</td>
+              <td>Verbos em Inglês</td>
+              <td class="status pendente">Pendente</td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 📘 ABA ATIVIDADES -->
+    <div id="atividades" class="tab-content">
+      <div class="card">
+        <h2>🧩 Atividades Cadastradas</h2>
+        <div id="lista-atividades">
+          <p>Nenhuma atividade cadastrada ainda.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ➕ ABA NOVA ATIVIDADE -->
+    <div id="nova" class="tab-content">
+      <div class="card">
+        <h2>➕ Criar Nova Atividade</h2>
+        <form id="formAtividade">
+          <label for="titulo">Título da Atividade:</label>
+          <input type="text" id="titulo" required>
+
+          <label for="descricao">Descrição:</label>
+          <textarea id="descricao" placeholder="Explique o objetivo da atividade"></textarea>
+
+          <label for="prazo">Prazo de Entrega:</label>
+          <input type="date" id="prazo" required>
+
+          <label for="arquivo">Anexar Imagem ou PDF (opcional):</label>
+          <input type="file" id="arquivo" accept="image/*,.pdf">
+
+          <button type="button" onclick="salvarAtividade()">Salvar Atividade</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ⚙️ PERFIL -->
+    <div id="perfil" class="tab-content">
+      <div class="card">
+        <h2>⚙️ Meu Perfil</h2>
+        <p><strong>Nome:</strong> Professor João Carlos</p>
+        <p><strong>Matéria:</strong> Inglês</p>
+        <p><strong>Email:</strong> joaocarlos@eduverse.com</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>EduVerse © 2025 — Plataforma Educacional JCMP</p>
+  </footer>
+
+  <!-- JS -->
+  <script src="/site/script/prof_area.js"></script>
+</html>
