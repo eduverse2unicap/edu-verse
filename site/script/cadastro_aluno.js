@@ -46,20 +46,20 @@
         // Renomeia as chaves para corresponder à API (ex: 'nome' -> 'name')
         const payload = {
             name: studentData.nome,
-            age: parseInt(studentData.idade, 10),
+            idade: parseInt(studentData.idade, 10), // Corrigido de 'age' para 'idade'
             email: studentData.email,
-            password: studentData.senha,
+            senha: studentData.senha, // Corrigido de 'password' para 'senha'
             phone_number: studentData.telefone,
             cpf: studentData.cpf,
             instituicao: studentData.instituicao
             // Adicione outros campos conforme necessário
         };
 
-        // 2. Enviar dados para a sua API Python
+        // 2. Enviar dados para a API Python
         try {
-          // ATENÇÃO: A URL '/api/students' é um exemplo.
-          // Você deve substituí-la pela URL real do seu endpoint no servidor Flask/FastAPI.
-          const response = await fetch('/api/students', {
+          // URL corrigida para corresponder ao endpoint da API em main.py
+          // A URL completa (https://edu-verse-main.vercel.app/new-student) é inferida pelo navegador.
+          const response = await fetch('/new-student', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
