@@ -159,7 +159,9 @@ def add_student(name, age, email, password, phone_number='+xx(xxx)xxxxx-xxxx', l
             return {"id": student_id, "nome": name, "email": email}
     except Error as e:
         print(f"Erro ao adicionar aluno: {e}")
-        return {"error": str(e)}
+        if conn:
+            conn.rollback() # Desfaz a transação falha para evitar erros subsequentes.
+        return {"error": f"Erro no banco de dados: {e}"}
     finally:
         if conn:
             conn.close()
