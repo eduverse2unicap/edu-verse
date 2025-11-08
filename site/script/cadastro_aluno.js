@@ -58,8 +58,8 @@
         // 2. Enviar dados para a API Python
         try {
           // URL corrigida para corresponder ao endpoint da API em main.py
-          // A URL completa (https://edu-verse-main.vercel.app/new-student) é inferida pelo navegador.
-          const response = await fetch('/new-student', {
+          // A Vercel publica os endpoints Python sob o prefixo /api.
+          const response = await fetch('/api/new-student', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
