@@ -1,4 +1,4 @@
-import psycopg2
+import psycopg2, urllib, httplib2
 from psycopg2 import Error
 from psycopg2.extras import RealDictCursor
 import os
@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 
 # Carrega as variáveis do arquivo .env para o ambiente
+http = httplib2.Http()
 load_dotenv()
 # A Vercel injeta a variável como POSTGRES_URL. Para outros provedores, pode ser DATABASE_URL.
 # Usamos 'POSTGRES_URL' como prioridade.
@@ -148,13 +149,17 @@ def add_student(name, age, email, password, phone_number='+xx(xxx)xxxxx-xxxx', l
     try:
         with conn.cursor() as cursor:
             hashed_password, salt = pass_hash.hash_password(password)
+            # Adicionamos RETURNING id para obter o ID do novo aluno
             cursor.execute("""
                 INSERT INTO alunos (nome, idade, email, senha, phone_number, level, xp, materias, cpf, instituicao, photo, salt, tags)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id
             """, (name, age, email, hashed_password, phone_number, level, xp, materias, cpf, instituicao, photo, salt, tags))
+            student_id = cursor.fetchone()[0]
             conn.commit()
+            return {"id": student_id, "nome": name, "email": email}
     except Error as e:
         print(f"Erro ao adicionar aluno: {e}")
+        return {"error": str(e)}
     finally:
         if conn:
             conn.close()
@@ -379,24 +384,33 @@ def login_student(email, password):
         if conn:
             conn.close()
 
-def login_teacher(email, password):
+def get_teachers_VERIFY(email: str):
     conn = create_conn()
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT id, senha, salt FROM professores WHERE email = %s", (email,))
+            cursor.execute("SELECT * FROM professores WHERE email = %s", (email,))
             teacher_data = cursor.fetchone()
             if teacher_data:
-                stored_hash = teacher_data['senha']
-                stored_salt = teacher_data['salt']
-                if pass_hash.verify_password(password, stored_hash, stored_salt):
-                    return {"message": "Login de professor bem-sucedido", "teacher_id": teacher_data['id']}
-                else:
-                    return {"message": "Senha incorreta"}
+                True
             else:
-                return {"message": "Professor não encontrado"}
+                False
     except Error as e:
-        print(f"Erro ao fazer login do professor: {e}")
+        print(f"Erro ao buscar professor: {e}")
         return {"message": "Erro interno do servidor"}
     finally:
         if conn:
             conn.close()
+
+def login_teacher(email, password):
+    conn = create_conn()
+    with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+        try:
+            cursor.execute("SELECT id, senha, salt FROM professores WHERE email = %s", (email,))
+            teacher_data = cursor.fetchone()
+            if teacher_data:
+                if pass_hash.verify_password(password, teacher_data['senha'], teacher_data['salt']):
+                    headers = {'Cookie': 'session=valid'}
+                    response, content = http.request('https://edu-verse.vercel.app/teacher_dashboard', 'GET', headers=headers)
+        except Error as e:
+            print(f"Erro ao fazer login do professor: {e}")
+            return {"message": "Erro interno do servidor"}   

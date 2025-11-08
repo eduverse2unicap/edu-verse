@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // e.g., <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     const supabaseUrl = 'https://iiplwwaegrofgknpoxtu.supabase.co';
     // IMPORTANT: Use your public ANON KEY, not a secret key, in the browser.
-    const supabaseKey = 'YOUR_SUPABASE_ANON_KEY'; // Replace with your actual anon key
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGx3d2FlZ3JvZmdrbnBveHR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk0NjQ5NDcsImV4cCI6MjAxNTA0MDk0N30.P23nN_W9wT2l8A0so6_50oQzaR029T3_s0-322IflO8'; // Chave anônima pública
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     if (!form) {
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Redirect to the content creation page after a short delay
             setTimeout(() => {
-                window.location.href = '/site/html/conteudo.html';
+                window.location.href = '/site/html/prof_area.html'; // Redireciona para o painel principal
             }, 1500);
 
         } catch (error) {

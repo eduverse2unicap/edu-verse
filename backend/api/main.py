@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+import base64
 from pydantic import BaseModel
 from . import banco
 
@@ -83,6 +84,9 @@ class Teacher(BaseModel):
 
 @app.post("/new-student", tags=["Students"])
 def create_student(student: Student):
+    with open("temp_photo.png", "rb") as image:
+        b64photo = base64.b64encde(image.read())
+        
     banco.add_student(
         name = student.name,
         age = student.idade,
@@ -94,7 +98,7 @@ def create_student(student: Student):
         materias = student.materias,
         cpf = student.cpf,
         instituicao = student.instituicao,
-        photo = student.photo,
+        photo = b64photo,
         tags = student.tags
     )
 

@@ -1,15 +1,9 @@
     document.addEventListener('DOMContentLoaded', () => {
       const form = document.getElementById('cadastroAlunoForm');
-      // You need to initialize Supabase here as well.
-      // Make sure this file has access to the Supabase client library.
-      const supabaseUrl = 'https://iiplwwaegrofgknpoxtu.supabase.co';
-      const supabaseKey = 'YOUR_SUPABASE_ANON_KEY'; // Replace with your actual anon key
-      const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
       const senhaInput = document.getElementById('senha');
       const senhaErro = document.getElementById('senhaErro');
       const msgSucesso = document.getElementById('msgSucesso');
     
-      // Se algum elemento não existir, aborta para evitar erros de runtime
       if (!form || !senhaInput || !senhaErro || !msgSucesso) {
         console.warn('Elementos do formulário de cadastro não encontrados, abortando script.');
         return;
@@ -45,31 +39,47 @@
           return;
         }
 
-        // 1. Coletar dados
-        const email = document.getElementById('email').value.trim();
-        const password = senhaInput.value;
-        const fullName = document.getElementById('nome').value.trim();
-        
-        // 2. Usar Supabase Auth para registrar o usuário
+        // 1. Coletar dados do formulário
+        const formData = new FormData(form);
+        const studentData = Object.fromEntries(formData.entries());
+
+        // Renomeia as chaves para corresponder à API (ex: 'nome' -> 'name')
+        const payload = {
+            name: studentData.nome,
+            age: parseInt(studentData.idade, 10),
+            email: studentData.email,
+            password: studentData.senha,
+            phone_number: studentData.telefone,
+            cpf: studentData.cpf,
+            instituicao: studentData.instituicao
+            // Adicione outros campos conforme necessário
+        };
+
+        // 2. Enviar dados para a sua API Python
         try {
-          const { data, error } = await supabase.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-              data: { 
-                full_name: fullName,
-                // You can add other metadata here
-              }
-            }
+          // ATENÇÃO: A URL '/api/students' é um exemplo.
+          // Você deve substituí-la pela URL real do seu endpoint no servidor Flask/FastAPI.
+          const response = await fetch('/api/students', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
           });
 
-          if (error) throw error;
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+          }
 
-          console.log("✅ Cadastro realizado! Verifique seu e-mail para confirmação.", data);
-            msgSucesso.style.display = 'block';
-            form.reset();
-            senhaInput.style.borderColor = '#ccc';
-            alert('Cadastro realizado com sucesso! Um link de confirmação foi enviado para o seu e-mail.');
+          const result = await response.json();
+          console.log("✅ Cadastro realizado com sucesso!", result);
+
+          msgSucesso.textContent = `Cadastro de ${result.nome} (ID: ${result.id}) realizado com sucesso!`;
+          msgSucesso.style.display = 'block';
+          form.reset();
+          senhaInput.style.borderColor = '#ccc';
+          alert('Cadastro realizado com sucesso!');
 
         } catch (error) {
           // Erro de rede

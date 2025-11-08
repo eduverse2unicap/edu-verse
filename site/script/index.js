@@ -1,7 +1,7 @@
 // 🔗 Conexão com o Supabase
 const supabaseUrl = 'https://iiplwwaegrofgknpoxtu.supabase.co'
 // IMPORTANT: Use your ANON KEY, not the service_role key, in the browser.
-const supabaseKey = 'YOUR_SUPABASE_ANON_KEY'; // Replace with your actual anon key
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGx3d2FlZ3JvZmdrbnBveHR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk0NjQ5NDcsImV4cCI6MjAxNTA0MDk0N30.P23nN_W9wT2l8A0so6_50oQzaR029T3_s0-322IflO8'; // Chave anônima pública
 const { createClient } = window.supabase
 const supabase = createClient(supabaseUrl, supabaseKey);
 
