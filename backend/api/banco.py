@@ -424,6 +424,31 @@ def create_table_teachers(conn):
     except Error as e:
         print(f"Erro ao criar tabela 'professores': {e}")
 
+def add_teacher(name, email, password, phone_number=None, instituicao=None, photo=None, materias='[]', tags='[]'):
+    """Adiciona um novo professor ao banco de dados."""
+    conn = create_conn()
+    if not conn:
+        return {"error": "Falha na conexão com o banco de dados."}
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            hashed_password, salt = pass_hash.hash_password(password)
+            cursor.execute("""
+                INSERT INTO professores (nome, email, senha, phone_number, instituicao, photo, salt, materias, tags)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id, nome, email;
+            """, (name, email, hashed_password, phone_number, instituicao, photo, salt, materias, tags))
+            new_teacher = cursor.fetchone()
+            conn.commit()
+            return new_teacher
+    except Error as e:
+        print(f"Erro ao adicionar professor: {e}")
+        if conn:
+            conn.rollback()
+        return {"error": str(e)}
+    finally:
+        if conn:
+            conn.close()
+
 def create_table_contents(conn):
     """Cria a tabela 'conteudos' se ela não existir."""
     try:

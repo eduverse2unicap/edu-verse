@@ -106,8 +106,8 @@ class UpdateContent(BaseModel):
 
 class Teacher(BaseModel):
     name: str
-    email: str = None
-    senha: str
+    email: str
+    password: str
     phone_number: str = None
     photo: str = None
     disciplinas: str = '[]'
@@ -214,6 +214,31 @@ def login_teacher(credentials: LoginCredentials):
         raise HTTPException(status_code=401, detail=result.get("message", "Credenciais inválidas"))
     # Retorna 200 OK com o ID do professor em caso de sucesso
     return result
+
+@app.post("/new-teacher", tags=["Teachers"])
+def create_teacher(teacher: Teacher):
+    """Cria um novo professor."""
+    try:
+        # A validação de email/CPF único para professores pode ser adicionada aqui se necessário
+        new_teacher = banco.add_teacher(
+            name=teacher.name,
+            email=teacher.email,
+            password=teacher.password,
+            phone_number=teacher.phone_number,
+            instituicao=teacher.instituicao,
+            materias=teacher.disciplinas # Mapeando disciplinas para materias
+        )
+        if "error" in new_teacher:
+            # Verifica se o erro é de chave única (email duplicado)
+            if 'professores_email_key' in new_teacher['error']:
+                raise HTTPException(status_code=400, detail="Este e-mail já está cadastrado.")
+            raise HTTPException(status_code=400, detail=f"Erro ao criar professor: {new_teacher['error']}")
+        return new_teacher
+    except Exception as e:
+        # Captura a exceção levantada acima ou qualquer outra
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")
 
 @app.post("/new-content", tags=["Content"])
 def create_content(content: Content):

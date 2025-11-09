@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Professor - EduVerse</title>
+    <!-- Reutilizando o CSS do cadastro de aluno para manter a consistência -->
+    <link rel="stylesheet" href="/site/style/cadastro_aluno.css">
+</head>
+
+<body>
+
+    <header class="main-header">
+        <nav class="main-nav">
+            <a href="/site/html/index.html" class="logo">
+                <img src="/site/style/imgs/site-logo.png" alt="EduVerse Logo">
+            </a>
+            <ul class="nav-links">
+                <li><a href="/site/html/index.html">Início</a></li>
+                <li><a href="/site/html/teacher_login.html">Já tenho conta</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="form-container">
+            <h1>Cadastro de Professor</h1>
+            <form id="cadastroProfessorForm" novalidate>
+
+                <div class="form-group">
+                    <label for="nome">Nome completo</label>
+                    <input type="text" id="nome" name="name" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="password" class="form-control" required>
+                    <small>A senha deve ter no mínimo 8 caracteres, uma letra maiúscula, um número e um caractere especial.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="instituicao">Instituição de Ensino (opcional)</label>
+                    <input type="text" id="instituicao" name="instituicao" class="form-control">
+                </div>>
+
+                <div id="formMessage" class="form-message" style="display: none;"></div>
+
+                <button type="submit" class="submit-btn">Cadastrar</button>
+
+            </form>
+        </div>
+    </main>
+
+    <script src="/site/script/cadastro_professor.js"></script>
+</body>
+
+</html>

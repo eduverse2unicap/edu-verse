@@ -1,11 +1,15 @@
 let arquivoBase64 = null;
 const msgElement = document.getElementById("msg");
+let editContentId = null; // Variável para guardar o ID do conteúdo em edição
 
 // --- Authentication Check ---
 function checkAuth() {
     // Verifica se o ID do professor está salvo no localStorage após o login
     const teacherId = localStorage.getItem('teacher_id');
-    const teacherEmail = localStorage.getItem('teacher_email');
+
+    // Verifica se estamos em modo de edição
+    const urlParams = new URLSearchParams(window.location.search);
+    editContentId = urlParams.get('edit');
 
     if (!teacherId) {
         // No user is logged in, redirect to the teacher login page.
@@ -16,6 +20,7 @@ function checkAuth() {
         console.log(`✅ Acesso permitido para professor ID: ${teacherId}`);
         document.getElementById("formConteudo").style.display = "block";
 
+        // AGORA, com o login confirmado, verificamos se é para editar
         if (editContentId) {
             loadContentForEditing(editContentId);
         } else {
@@ -134,6 +139,4 @@ async function salvarConteudo() {
 }
 
 // Run the authentication check as soon as the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    checkAuth();
-});
+checkAuth();
