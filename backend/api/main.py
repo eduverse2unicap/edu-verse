@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import base64
 from pydantic import BaseModel
 from . import banco
@@ -84,21 +84,26 @@ class Teacher(BaseModel):
 
 @app.post("/new-student", tags=["Students"])
 def create_student(student: Student):
-    new_student = banco.add_student(
-        name = student.name,
-        age = student.idade,
-        email = student.email,
-        password = student.senha,
-        phone_number = student.phone_number,
-        level = student.level,
-        xp = student.xp,
-        materias = student.materias,
-        cpf = student.cpf,
-        instituicao = student.instituicao,
-        photo = student.photo,
-        tags = student.tags
-    )
-    return new_student
+    try:
+        new_student = banco.add_student(
+            name=student.name,
+            age=student.idade,
+            email=student.email,
+            password=student.senha,
+            phone_number=student.phone_number,
+            level=student.level,
+            xp=student.xp,
+            materias=student.materias,
+            cpf=student.cpf,
+            instituicao=student.instituicao,
+            photo=student.photo,
+            tags=student.tags
+        )
+        if "error" in new_student:
+            raise HTTPException(status_code=400, detail=f"Erro ao criar estudante: {new_student['error']}")
+        return new_student
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {e}")
 
 @app.delete("/delete-student/{student_id}&{name}", tags=["Students"])
 def delete_student(student_id: int, name: str):
