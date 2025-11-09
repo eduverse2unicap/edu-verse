@@ -33,7 +33,11 @@ app = FastAPI(
 # Garante que todas as tabelas e suas colunas existam na inicialização da aplicação
 @app.on_event("startup")
 async def startup_event():
-    banco.create_all_tables()
+    try:
+        print("Inicializando aplicação e verificando tabelas do banco de dados...")
+        banco.create_all_tables()
+    except Exception as e:
+        print(f"ERRO CRÍTICO: Não foi possível conectar ao banco de dados na inicialização: {e}")
 
 @app.get("/", tags=["Root"])
 def root():

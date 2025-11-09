@@ -21,11 +21,12 @@ def create_conn():
         if not DATABASE_URL:
             raise Exception("Variável de ambiente POSTGRES_URL (ou DATABASE_URL) não encontrada.")
         conn = psycopg2.connect(DATABASE_URL)
-        print("Conexão com PostgreSQL bem-sucedida.")
     except Error as e:
         print(f"Erro ao conectar com PostgreSQL: {e}")
+        raise e  # Lança a exceção para que o chamador saiba que a conexão falhou
     except Exception as e:
         print(f"Erro geral na conexão: {e}")
+        raise e  # Lança a exceção
     return conn
 
 def ensure_student_table_columns(conn):
@@ -146,6 +147,8 @@ def get_students():
 
 def add_student(name, age, email, password, phone_number='+xx(xxx)xxxxx-xxxx', level=1, xp=0, materias='[]', cpf=None, instituicao='None', photo='None', salt='', tags='[]'):
     conn = create_conn()
+    if not conn:
+        return {"error": "Falha ao estabelecer conexão com o banco de dados."}
     try:
         with conn.cursor() as cursor:
             hashed_password, salt = pass_hash.hash_password(password)
@@ -429,6 +432,8 @@ def login_teacher(email, password):
 def check_existence(field: str, value: str):
     """Verifica se um valor para um campo específico (email ou cpf) já existe na tabela de alunos."""
     conn = create_conn()
+    if not conn:
+        return {"error": "Falha na conexão com o banco de dados", "exists": None}
     if not conn:
         return {"error": "Falha na conexão com o banco de dados", "exists": None}
 
