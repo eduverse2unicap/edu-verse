@@ -177,32 +177,6 @@ async function logoutUser() {
     }
 }
 
-
-fetch('materias.json')
-    .then(res => res.json())
-    .then(data => {
-        // Escolar
-        const escolarGrid = document.querySelector('#escolar .grid');
-        data.escolar.forEach(materia => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerText = `${materia.icone} ${materia.nome}`;
-            card.onclick = () => addXP(materia.xp);
-            mostrarAssuntos(materia.nome);
-            escolarGrid.appendChild(card);
-        });
-
-        // Extras
-        const extrasGrid = document.querySelector('#extras .grid');
-        data.extras.forEach(materia => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerText = `${materia.icone} ${materia.nome}`;
-            card.onclick = () => addXP(materia.xp);
-            extrasGrid.appendChild(card);
-        });
-    });
-
 // Listen for authentication changes (login, logout)
 supabase.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN' && session) {

@@ -283,9 +283,14 @@ img {
                     <input type="file" id="foto" name="foto" class="form-control">
                 </div>
                 
+                <!-- Este é o novo container para mensagens de sucesso e erro -->
+                <div id="formMessage" class="form-message" style="display: none;"></div>
+
                 <button type="submit" class="submit-btn">Cadastrar</button>
 
             </form>
+            <!-- Movendo a mensagem de erro da senha para dentro do container do formulário -->
+            <div id="senhaErro" style="display:none; color:red; text-align:center; margin-top:10px;">A senha não atende aos requisitos.</div>
         </div>
     </main>
 
