@@ -129,14 +129,68 @@ function checkUserSession() {
     const teacherId = localStorage.getItem('teacher_id');
     const teacherEmail = localStorage.getItem('teacher_email');
 
+    const loginSection = document.getElementById('login');
+    const logoutBtn = document.getElementById('logoutBtn');
+
     if (studentId && studentEmail) {
         userNameText.textContent = studentEmail.split('@')[0]; // Mostra o nome do usuário antes do @
         console.log(`Aluno logado: ID ${studentId}`);
+        loginSection.style.display = 'none'; // Esconde a seção de login
+        logoutBtn.style.display = 'block'; // Mostra o botão de sair
     } else if (teacherId && teacherEmail) {
         userNameText.textContent = `Prof. ${teacherEmail.split('@')[0]}`;
         console.log(`Professor logado: ID ${teacherId}`);
+        loginSection.style.display = 'none'; // Esconde a seção de login
+        logoutBtn.style.display = 'block'; // Mostra o botão de sair
+    } else {
+        // Se ninguém estiver logado
+        loginSection.style.display = 'block';
+        logoutBtn.style.display = 'none';
     }
-    // Se ninguém estiver logado, ele manterá o texto padrão "Usuário".
+}
+
+// Função de Logout
+function logoutUser() {
+    localStorage.removeItem('student_id');
+    localStorage.removeItem('student_email');
+    localStorage.removeItem('teacher_id');
+    localStorage.removeItem('teacher_email');
+    window.location.reload(); // Recarrega a página para resetar o estado
+}
+
+// Lógica de Login do Formulário do Index
+async function handleIndexLogin(event) {
+    event.preventDefault();
+    const messageEl = document.getElementById('loginMessage');
+    messageEl.textContent = '';
+
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    try {
+        const response = await fetch('/api/login-student', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.detail || 'Falha no login.');
+        }
+
+        // Sucesso!
+        localStorage.setItem('student_id', result.student_id);
+        localStorage.setItem('student_email', email);
+
+        messageEl.textContent = '✅ Login bem-sucedido! Atualizando...';
+        messageEl.className = 'message success';
+        setTimeout(() => window.location.reload(), 1000);
+
+    } catch (error) {
+        messageEl.textContent = `❌ ${error.message}`;
+        messageEl.className = 'message error';
+    }
 }
 
 // Initial call to set up the UI based on any existing session
@@ -284,3 +338,7 @@ function mostrarQuestoes(conteudo) {
 // Chama ao iniciar
 checkUserSession(); // Verifica se um usuário já está logado
 carregarMaterias();
+
+// Adiciona os listeners para o novo formulário e botão
+document.getElementById('indexLoginForm').addEventListener('submit', handleIndexLogin);
+document.getElementById('logoutBtn').addEventListener('click', logoutUser);
