@@ -200,6 +200,8 @@ def get_institutions():
 
 def add_institution(name, email, password, phone_number='+xx(xxx)xxxxx-xxxx', photo='None', descricao='None', cursos='[]', alunos='[]', professores='[]'):
     conn = create_conn()
+    if not conn:
+        return {"error": "Falha ao estabelecer conexão com o banco de dados."}
     try:
         with conn.cursor() as cursor:
             hashed_password, salt = pass_hash.hash_password(password)
@@ -432,8 +434,6 @@ def login_teacher(email, password):
 def check_existence(field: str, value: str):
     """Verifica se um valor para um campo específico (email ou cpf) já existe na tabela de alunos."""
     conn = create_conn()
-    if not conn:
-        return {"error": "Falha na conexão com o banco de dados", "exists": None}
     if not conn:
         return {"error": "Falha na conexão com o banco de dados", "exists": None}
 
