@@ -156,7 +156,8 @@ def add_student(name, age, email, password, phone_number='+xx(xxx)xxxxx-xxxx', l
             """, (name, age, email, hashed_password, phone_number, level, xp, materias, cpf, instituicao, photo, salt, tags))
             student_id = cursor.fetchone()[0]
             conn.commit()
-            return {"id": student_id, "nome": name, "email": email}
+            # Retorna um dicionário com os dados do aluno criado
+            return {"id": student_id, "name": name, "email": email}
     except Error as e:
         print(f"Erro ao adicionar aluno: {e}")
         if conn:

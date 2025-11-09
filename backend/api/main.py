@@ -84,7 +84,7 @@ class Teacher(BaseModel):
 
 @app.post("/new-student", tags=["Students"])
 def create_student(student: Student):
-    banco.add_student(
+    new_student = banco.add_student(
         name = student.name,
         age = student.idade,
         email = student.email,
@@ -98,6 +98,7 @@ def create_student(student: Student):
         photo = student.photo,
         tags = student.tags
     )
+    return new_student
 
 @app.delete("/delete-student/{student_id}&{name}", tags=["Students"])
 def delete_student(student_id: int, name: str):
