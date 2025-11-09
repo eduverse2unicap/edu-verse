@@ -392,23 +392,6 @@ def login_student(email, password):
         if conn:
             conn.close()
 
-def get_teachers_VERIFY(email: str):
-    conn = create_conn()
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM professores WHERE email = %s", (email,))
-            teacher_data = cursor.fetchone()
-            if teacher_data:
-                True
-            else:
-                False
-    except Error as e:
-        print(f"Erro ao buscar professor: {e}")
-        return {"message": "Erro interno do servidor"}
-    finally:
-        if conn:
-            conn.close()
-
 def login_teacher(email, password):
     conn = create_conn()
     try:

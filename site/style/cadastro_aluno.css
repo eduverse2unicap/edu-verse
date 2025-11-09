@@ -115,3 +115,22 @@ body {
 .submit-btn:hover {
     background-color: #218838; /* Verde mais escuro no hover */
 }
+
+/* Estilos para o container de mensagens do formulário */
+.form-message {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.form-message-success {
+    background-color: #d4edda; /* Fundo verde claro */
+    color: #155724; /* Texto verde escuro */
+}
+
+.form-message-error {
+    background-color: #f8d7da; /* Fundo vermelho claro */
+    color: #721c24; /* Texto vermelho escuro */
+}

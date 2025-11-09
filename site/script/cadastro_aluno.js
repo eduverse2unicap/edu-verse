@@ -4,9 +4,9 @@
       const cpfInput = document.getElementById('cpf');
       const senhaInput = document.getElementById('senha');
       const senhaErro = document.getElementById('senhaErro');
-      const msgSucesso = document.getElementById('msgSucesso');
+      const formMessage = document.getElementById('formMessage'); // Trocamos msgSucesso por formMessage
     
-      if (!form || !emailInput || !cpfInput || !senhaInput || !senhaErro || !msgSucesso) {
+      if (!form || !emailInput || !cpfInput || !senhaInput || !senhaErro || !formMessage) {
         console.warn('Elementos do formulário de cadastro não encontrados, abortando script.');
         return;
       }
@@ -15,6 +15,19 @@
       [emailInput, cpfInput].forEach(input => {
           input.addEventListener('focus', () => removeExistingError(input));
       });
+
+      // Função centralizada para exibir mensagens no formulário
+      function displayFormMessage(message, type) {
+        formMessage.textContent = message;
+        // Limpa classes antigas e adiciona a nova
+        formMessage.className = 'form-message';
+        if (type === 'success') {
+          formMessage.classList.add('form-message-success');
+        } else if (type === 'error') {
+          formMessage.classList.add('form-message-error');
+        }
+        formMessage.style.display = 'block';
+      }
     
       // Função de verificação de senha forte
       function validarSenha(senha) {
@@ -76,7 +89,7 @@
     
         if (!validarSenha(senhaInput.value)) {
           senhaErro.style.display = 'block';
-          alert("A senha precisa conter pelo menos:\n- Uma letra maiúscula\n- Um número\n- Um caractere especial\n- E ter no mínimo 8 caracteres.");
+          displayFormMessage("A senha não é forte o suficiente. Verifique os requisitos abaixo do campo.", 'error');
           return;
         }
 
@@ -98,6 +111,9 @@
 
         // 2. Enviar dados para a API Python
         try {
+          // Esconde mensagens antigas antes de uma nova submissão
+          formMessage.style.display = 'none';
+
           // URL corrigida para corresponder ao endpoint da API em main.py
           // A Vercel publica os endpoints Python sob o prefixo /api.
           const response = await fetch('/api/new-student', {
@@ -131,17 +147,16 @@
 
           console.log("✅ Cadastro realizado com sucesso!", result);
 
-          // A API retorna 'name', não 'nome', após o cadastro.
-          msgSucesso.textContent = `Cadastro de ${result.name} (ID: ${result.id}) realizado com sucesso!`;
-          msgSucesso.style.display = 'block';
+          // Usa a nova função para exibir a mensagem de sucesso
+          displayFormMessage(`Cadastro de ${result.name} realizado com sucesso! Você já pode fazer o login.`, 'success');
           form.reset();
           senhaInput.style.borderColor = '#ccc';
-          alert('Cadastro realizado com sucesso!');
 
         } catch (error) {
           // Exibe a mensagem de erro específica (seja do servidor ou de rede)
           console.error('Falha no processo de cadastro:', error);
-          alert(error.message || 'Não foi possível conectar ao servidor. Verifique sua conexão.');
+          // Usa a nova função para exibir a mensagem de erro
+          displayFormMessage(error.message || 'Não foi possível conectar ao servidor. Verifique sua conexão.', 'error');
         }
       });
     });
