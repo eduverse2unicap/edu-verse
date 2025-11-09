@@ -311,50 +311,6 @@ def delete_question(question_id: int, enunciado: str, tag: str = '[]'):
         if conn:
             conn.close()
 
-def create_table_contents(conn):
-    """Cria a tabela 'conteudos' se ela não existir."""
-    try:
-        with conn.cursor() as cursor:
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS conteudos (
-                    id SERIAL PRIMARY KEY,
-                    materia TEXT NOT NULL,
-                    assunto TEXT NOT NULL,
-                    descricao TEXT,
-                    questoes JSONB,
-                    arquivo TEXT,
-                    professor_id INTEGER REFERENCES professores(id) ON DELETE SET NULL
-                );
-            """)
-            conn.commit()
-            print("Tabela 'conteudos' pronta.")
-    except Error as e:
-        print(f"Erro ao criar tabela 'conteudos': {e}")
-
-def add_content(materia: str, assunto: str, descricao: str, questoes: list, arquivo: str, professor_id: int):
-    """Adiciona um novo conteúdo ao banco de dados."""
-    conn = create_conn()
-    if not conn:
-        return {"error": "Falha na conexão com o banco de dados."}
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("""
-                INSERT INTO conteudos (materia, assunto, descricao, questoes, arquivo, professor_id)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                RETURNING id, materia, assunto;
-            """, (materia, assunto, descricao, questoes, arquivo, professor_id))
-            new_content = cursor.fetchone()
-            conn.commit()
-            return new_content
-    except Error as e:
-        print(f"Erro ao adicionar conteúdo: {e}")
-        if conn:
-            conn.rollback()
-        return {"error": str(e)}
-    finally:
-        if conn:
-            conn.close()
-
 def create_all_tables():
     conn = create_conn()
     if conn:
@@ -364,10 +320,63 @@ def create_all_tables():
         ensure_institution_table_columns(conn)
         create_table_questions(conn)
         ensure_question_table_columns(conn)
+        # A criação da tabela de professores agora vem ANTES da de conteúdos
         create_table_teachers(conn)
-        ensure_teacher_table_columns(conn)
         create_table_contents(conn)
+        create_table_materias(conn)
         conn.close()
+
+def create_table_materias(conn):
+    """Cria e popula a tabela 'materias' se ela não existir."""
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS materias (
+                    id SERIAL PRIMARY KEY,
+                    nome TEXT NOT NULL,
+                    icone TEXT,
+                    xp INTEGER DEFAULT 10,
+                    tipo TEXT NOT NULL -- 'escolar' ou 'extra'
+                );
+            """)
+            conn.commit()
+            print("Tabela 'materias' pronta.")
+
+            # Verifica se a tabela está vazia antes de popular
+            cursor.execute("SELECT COUNT(*) FROM materias")
+            if cursor.fetchone()[0] == 0:
+                print("Populando tabela 'materias' com dados iniciais...")
+                initial_materias = [
+                    ('Matemática', '📘', 10, 'escolar'), ('Ciências', '📗', 10, 'escolar'),
+                    ('História', '📙', 10, 'escolar'), ('Português', '📕', 10, 'escolar'),
+                    ('Geografia', '📘', 10, 'escolar'), ('Física', '📗', 10, 'escolar'),
+                    ('Química', '📙', 10, 'escolar'), ('Tecnologia', '💻', 15, 'extra'),
+                    ('Saúde', '❤️', 15, 'extra'), ('Artes', '🎨', 15, 'extra'),
+                    ('Música', '🎵', 15, 'extra'), ('Esportes', '🤸', 15, 'extra')
+                ]
+                cursor.executemany(
+                    "INSERT INTO materias (nome, icone, xp, tipo) VALUES (%s, %s, %s, %s)",
+                    initial_materias
+                )
+                conn.commit()
+                print("Tabela 'materias' populada.")
+    except Error as e:
+        print(f"Erro ao criar/popular tabela 'materias': {e}")
+
+def get_materias():
+    """Busca todas as matérias do banco de dados."""
+    conn = create_conn()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM materias ORDER BY tipo, nome")
+            materias = cursor.fetchall()
+        return materias
+    except Error as e:
+        print(f"Erro ao buscar matérias: {e}")
+        return []
+    finally:
+        if conn:
+            conn.close()
 
 def ensure_teacher_table_columns(conn):
     """Garante que a tabela 'professores' tenha todas as colunas esperadas."""
@@ -415,6 +424,68 @@ def create_table_teachers(conn):
     except Error as e:
         print(f"Erro ao criar tabela 'professores': {e}")
 
+def create_table_contents(conn):
+    """Cria a tabela 'conteudos' se ela não existir."""
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS conteudos (
+                    id SERIAL PRIMARY KEY,
+                    materia TEXT NOT NULL,
+                    assunto TEXT NOT NULL,
+                    descricao TEXT,
+                    questoes JSONB,
+                    arquivo TEXT,
+                    professor_id INTEGER REFERENCES professores(id) ON DELETE SET NULL
+                );
+            """)
+            conn.commit()
+            print("Tabela 'conteudos' pronta.")
+    except Error as e:
+        print(f"Erro ao criar tabela 'conteudos': {e}")
+
+def add_content(materia: str, assunto: str, descricao: str, questoes: list, arquivo: str, professor_id: int):
+    """Adiciona um novo conteúdo ao banco de dados."""
+    conn = create_conn()
+    if not conn:
+        return {"error": "Falha na conexão com o banco de dados."}
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("""
+                INSERT INTO conteudos (materia, assunto, descricao, questoes, arquivo, professor_id)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING id, materia, assunto;
+            """, (materia, assunto, descricao, questoes, arquivo, professor_id))
+            new_content = cursor.fetchone()
+            conn.commit()
+            return new_content
+    except Error as e:
+        print(f"Erro ao adicionar conteúdo: {e}")
+        if conn:
+            conn.rollback()
+        return {"error": str(e)}
+    finally:
+        if conn:
+            conn.close()
+
+def get_contents_by_materia(materia_nome: str):
+    """Busca todos os conteúdos de uma matéria específica."""
+    conn = create_conn()
+    if not conn:
+        return []
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            # Seleciona apenas os campos necessários para a lista de assuntos
+            cursor.execute("SELECT id, materia, assunto, questoes FROM conteudos WHERE materia = %s", (materia_nome,))
+            contents = cursor.fetchall()
+            return contents
+    except Error as e:
+        print(f"Erro ao buscar conteúdos por matéria: {e}")
+        return []
+    finally:
+        if conn:
+            conn.close()
+
 def login_student(email, password):
     conn = create_conn()
     try:
@@ -455,6 +526,90 @@ def login_teacher(email, password):
     except Error as e:
         print(f"Erro ao fazer login do professor: {e}")
         return {"message": "Erro interno do servidor"}
+    finally:
+        if conn:
+            conn.close()
+
+def get_contents_by_teacher(teacher_id: int):
+    """Busca todos os conteúdos cadastrados por um professor específico."""
+    conn = create_conn()
+    if not conn:
+        return []
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                "SELECT id, materia, assunto FROM conteudos WHERE professor_id = %s ORDER BY materia, assunto",
+                (teacher_id,)
+            )
+            contents = cursor.fetchall()
+            return contents
+    except Error as e:
+        print(f"Erro ao buscar conteúdos do professor: {e}")
+        return []
+    finally:
+        if conn:
+            conn.close()
+
+def delete_content(content_id: int):
+    """Deleta um conteúdo específico pelo seu ID e retorna o número de linhas afetadas."""
+    conn = create_conn()
+    if not conn:
+        return 0
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("DELETE FROM conteudos WHERE id = %s", (content_id,))
+            deleted_rows = cursor.rowcount
+            conn.commit()
+            return deleted_rows
+    except Error as e:
+        print(f"Erro ao deletar conteúdo: {e}")
+        if conn:
+            conn.rollback()
+        return 0
+    finally:
+        if conn:
+            conn.close()
+
+def get_content_by_id(content_id: int):
+    """Busca os detalhes de um conteúdo específico pelo seu ID."""
+    conn = create_conn()
+    if not conn:
+        return None
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM conteudos WHERE id = %s", (content_id,))
+            content = cursor.fetchone()
+            return content
+    except Error as e:
+        print(f"Erro ao buscar conteúdo por ID: {e}")
+        return None
+    finally:
+        if conn:
+            conn.close()
+
+def update_content(content_id: int, materia: str, assunto: str, descricao: str, questoes: list):
+    """Atualiza um conteúdo existente no banco de dados."""
+    conn = create_conn()
+    if not conn:
+        return {"error": "Falha na conexão com o banco de dados."}
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("""
+                UPDATE conteudos
+                SET materia = %s, assunto = %s, descricao = %s, questoes = %s
+                WHERE id = %s
+                RETURNING id, materia, assunto;
+            """, (materia, assunto, descricao, questoes, content_id))
+            updated_content = cursor.fetchone()
+            conn.commit()
+            if not updated_content:
+                return {"error": "Conteúdo não encontrado para atualizar."}
+            return updated_content
+    except Error as e:
+        print(f"Erro ao atualizar conteúdo: {e}")
+        if conn:
+            conn.rollback()
+        return {"error": str(e)}
     finally:
         if conn:
             conn.close()

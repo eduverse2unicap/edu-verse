@@ -25,6 +25,10 @@ tags_metadata = [
     {
         "name": "Content",
         "description": "Operações para criar e gerenciar conteúdos educacionais."
+    },
+    {
+        "name": "General",
+        "description": "Endpoints de dados gerais, como matérias."
     }
 ]
 
@@ -93,6 +97,12 @@ class Content(BaseModel):
     questoes: list = []
     arquivo: str = None # Para o base64 da imagem
     professor_id: int
+
+class UpdateContent(BaseModel):
+    materia: str
+    assunto: str
+    descricao: str = None
+    questoes: list = []
 
 class Teacher(BaseModel):
     name: str
@@ -222,5 +232,62 @@ def create_content(content: Content):
         if "error" in new_content:
             raise HTTPException(status_code=400, detail=f"Erro ao criar conteúdo: {new_content['error']}")
         return new_content
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")
+
+@app.get("/materias", tags=["General"])
+def read_materias():
+    return banco.get_materias()
+
+@app.get("/contents/{materia_nome}", tags=["Content"])
+def read_contents_by_materia(materia_nome: str):
+    """
+    Busca todos os conteúdos (assuntos) para uma matéria específica.
+    """
+    # A função do banco já retorna uma lista (vazia ou não),
+    # então podemos retorná-la diretamente.
+    return banco.get_contents_by_materia(materia_nome)
+
+@app.get("/teacher-contents/{teacher_id}", tags=["Content"])
+def read_contents_by_teacher(teacher_id: int):
+    """
+    Busca todos os conteúdos cadastrados por um professor específico.
+    """
+    contents = banco.get_contents_by_teacher(teacher_id)
+    return contents
+
+@app.delete("/delete-content/{content_id}", tags=["Content"], status_code=204)
+def delete_content_by_id(content_id: int):
+    """
+    Deleta um conteúdo pelo seu ID.
+    Retorna 204 No Content em caso de sucesso.
+    """
+    deleted_count = banco.delete_content(content_id)
+    if deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Conteúdo não encontrado.")
+    return None # Retorna uma resposta vazia com status 204
+
+@app.get("/content/{content_id}", tags=["Content"])
+def read_content_by_id(content_id: int):
+    """Busca os detalhes de um conteúdo específico pelo seu ID."""
+    content = banco.get_content_by_id(content_id)
+    if not content:
+        raise HTTPException(status_code=404, detail="Conteúdo não encontrado.")
+    return content
+
+@app.put("/update-content/{content_id}", tags=["Content"])
+def update_content_by_id(content_id: int, content_data: UpdateContent):
+    """Atualiza um conteúdo existente."""
+    try:
+        updated_content = banco.update_content(
+            content_id=content_id,
+            materia=content_data.materia,
+            assunto=content_data.assunto,
+            descricao=content_data.descricao,
+            questoes=content_data.questoes
+        )
+        if "error" in updated_content:
+            raise HTTPException(status_code=400, detail=updated_content['error'])
+        return updated_content
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")

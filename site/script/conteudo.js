@@ -15,7 +15,12 @@ function checkAuth() {
         // User is logged in, show the form.
         console.log(`✅ Acesso permitido para professor ID: ${teacherId}`);
         document.getElementById("formConteudo").style.display = "block";
-        msgElement.innerText = `Bem-vindo(a), ${teacherEmail || 'Professor(a)'}! Você pode cadastrar novos conteúdos.`;
+
+        if (editContentId) {
+            loadContentForEditing(editContentId);
+        } else {
+            msgElement.innerText = `Bem-vindo(a)! Você pode cadastrar novos conteúdos.`;
+        }
         msgElement.className = 'message-info';
     }
 }
@@ -40,6 +45,30 @@ document.getElementById("imagem").addEventListener("change", function() {
     }
 });
 
+async function loadContentForEditing(id) {
+    try {
+        const response = await fetch(`/api/content/${id}`);
+        if (!response.ok) throw new Error('Conteúdo não encontrado.');
+
+        const content = await response.json();
+
+        // Preenche o formulário com os dados existentes
+        document.getElementById("materia").value = content.materia;
+        document.getElementById("assunto").value = content.assunto;
+        document.getElementById("descricao").value = content.descricao || '';
+        document.getElementById("questoes").value = (content.questoes || []).join('\n');
+
+        // Atualiza a UI para o modo de edição
+        document.querySelector("h1").textContent = "Editar Conteúdo";
+        document.querySelector("#formConteudo button").textContent = "Atualizar Conteúdo";
+        msgElement.innerText = `Editando o conteúdo: "${content.assunto}"`;
+
+    } catch (error) {
+        console.error('Erro ao carregar conteúdo para edição:', error);
+        msgElement.innerText = `❌ Erro: ${error.message}`;
+    }
+}
+
 // Salvar conteúdo no Supabase
 async function salvarConteudo() {
     let materia = document.getElementById("materia").value.trim();
@@ -59,18 +88,21 @@ async function salvarConteudo() {
         return;
     }
 
-    const payload = {
-        materia: materia,
-        assunto: assunto,
-        descricao: descricao,
-        questoes: questoes,
-        arquivo: arquivoBase64,
-        professor_id: parseInt(teacherId, 10)
-    };
+    // Define o payload, URL e método com base no modo (criação ou edição)
+    let url, method, payload;
+    if (editContentId) {
+        url = `/api/update-content/${editContentId}`;
+        method = 'PUT';
+        payload = { materia, assunto, descricao, questoes }; // Não envia ID do professor na atualização
+    } else {
+        url = '/api/new-content';
+        method = 'POST';
+        payload = { materia, assunto, descricao, questoes, arquivo: arquivoBase64, professor_id: parseInt(teacherId, 10) };
+    }
 
     try {
-        const response = await fetch('/api/new-content', {
-            method: 'POST',
+        const response = await fetch(url, {
+            method: method,
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -84,23 +116,19 @@ async function salvarConteudo() {
             throw new Error(result.detail || `Erro HTTP: ${response.status}`);
         }
 
-        msgElement.innerText = `✅ Conteúdo "${result.assunto}" salvo com sucesso!`;
+        const actionText = editContentId ? 'atualizado' : 'salvo';
+        msgElement.innerText = `✅ Conteúdo "${result.assunto}" ${actionText} com sucesso!`;
         msgElement.className = 'message-success';
 
-        // Limpa o formulário
-        document.getElementById("assunto").value = "";
-        document.getElementById("descricao").value = "";
-        document.getElementById("questoes").value = "";
-        document.getElementById("imagem").value = "";
-        document.getElementById("preview").innerHTML = "";
-        arquivoBase64 = null;
-        
-        // Esconde a mensagem de sucesso após alguns segundos
-        setTimeout(() => { msgElement.innerText = ''; msgElement.className = ''; }, 5000);
+        // Redireciona de volta para a área do professor após o sucesso
+        setTimeout(() => {
+            window.location.href = '/site/html/prof_area.html';
+        }, 2000);
 
     } catch (error) {
+        const actionText = editContentId ? 'atualizar' : 'salvar';
         console.error("Erro ao salvar conteúdo:", error.message);
-        msgElement.innerText = `❌ Erro ao salvar: ${error.message}`;
+        msgElement.innerText = `❌ Erro ao ${actionText}: ${error.message}`;
         msgElement.className = 'message-error';
     }
 }

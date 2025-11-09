@@ -1,9 +1,3 @@
-// 🔗 Conexão com o Supabase
-const supabaseUrl = 'https://iiplwwaegrofgknpoxtu.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGx3d2FlZ3JvZmdrbnBveHR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk0NjQ5NDcsImV4cCI6MjAxNTA0MDk0N30.P23nN_W9wT2l8A0so6_50oQzaR029T3_s0-322IflO8'; // Chave anônima pública
-const { createClient } = window.supabase
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 let xp = 0;
 let level = 1;
 
@@ -198,51 +192,37 @@ updateXP();
 updateRanking();
 
 async function carregarMaterias() {
-    // Escolar
-    const {
-        data: materiasEscolar,
-        error: err1
-    } = await supabase
-        .from('materias')
-        .select('*')
-        .eq('tipo', 'escolar'); // supondo que você tenha coluna "tipo"
-
-    if (err1) return console.error(err1);
-
     const escolarGrid = document.querySelector('#escolar .grid');
-    escolarGrid.innerHTML = "";
-
-    materiasEscolar.forEach(materia => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerText = `${materia.icone} ${materia.nome}`;
-        card.onclick = () => addXP(materia.xp);
-        card.onclick = () => mostrarAssuntos(materia.nome);
-        escolarGrid.appendChild(card);
-    });
-
-    // Extras
-    const {
-        data: materiasExtras,
-        error: err2
-    } = await supabase
-        .from('materias')
-        .select('*')
-        .eq('tipo', 'extra');
-
-    if (err2) return console.error(err2);
-
     const extrasGrid = document.querySelector('#extras .grid');
+    escolarGrid.innerHTML = "";
     extrasGrid.innerHTML = "";
 
-    materiasExtras.forEach(materia => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerText = `${materia.icone} ${materia.nome}`;
-        card.onclick = () => addXP(materia.xp);
-        card.onclick = () => mostrarAssuntos(materia.nome);
-        extrasGrid.appendChild(card);
-    });
+    try {
+        const response = await fetch('/api/materias');
+        if (!response.ok) {
+            throw new Error(`Erro ao buscar matérias: ${response.statusText}`);
+        }
+        const materias = await response.json();
+
+        materias.forEach(materia => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerText = `${materia.icone} ${materia.nome}`;
+            // Adiciona múltiplos eventos de clique
+            card.addEventListener('click', () => addXP(materia.xp));
+            card.addEventListener('click', () => mostrarAssuntos(materia.nome));
+
+            if (materia.tipo === 'escolar') {
+                escolarGrid.appendChild(card);
+            } else if (materia.tipo === 'extra') {
+                extrasGrid.appendChild(card);
+            }
+        });
+
+    } catch (error) {
+        console.error(error);
+        escolarGrid.innerHTML = "<p>Não foi possível carregar as matérias. Tente novamente mais tarde.</p>";
+    }
 }
 
 // Mostrar assuntos de uma matéria
@@ -259,32 +239,30 @@ async function mostrarAssuntos(materiaNome) {
 
     container.innerHTML = "";
 
-    const {
-        data: conteudos,
-        error
-    } = await supabase
-        .from('conteudos')
-        .select('*')
-        .eq('materia', materiaNome);
+    try {
+        // Chama o novo endpoint da nossa API
+        const response = await fetch(`/api/contents/${encodeURIComponent(materiaNome)}`);
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        const conteudos = await response.json();
 
-    if (error) {
-        console.error(error);
-        container.innerHTML = "<p>Erro ao carregar conteúdos.</p>";
-        return;
+        if (!conteudos || conteudos.length === 0) {
+            container.innerHTML = "<p>Sem conteúdos disponíveis para esta matéria.</p>";
+            return;
+        }
+
+        conteudos.forEach(conteudo => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerText = `📘 ${conteudo.assunto}`;
+            card.onclick = () => mostrarQuestoes(conteudo);
+            container.appendChild(card);
+        });
+    } catch (error) {
+        console.error("Erro ao carregar conteúdos:", error);
+        container.innerHTML = "<p>Não foi possível carregar os conteúdos. Tente novamente mais tarde.</p>";
     }
-
-    if (!conteudos || conteudos.length === 0) {
-        container.innerHTML = "<p>Sem conteúdos disponíveis.</p>";
-        return;
-    }
-
-    conteudos.forEach(conteudo => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerText = `📘 ${conteudo.assunto}`;
-        card.onclick = () => mostrarQuestoes(conteudo);
-        container.appendChild(card);
-    });
 }
 
 // Mostrar questões de um assunto
