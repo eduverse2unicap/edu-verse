@@ -311,6 +311,50 @@ def delete_question(question_id: int, enunciado: str, tag: str = '[]'):
         if conn:
             conn.close()
 
+def create_table_contents(conn):
+    """Cria a tabela 'conteudos' se ela não existir."""
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS conteudos (
+                    id SERIAL PRIMARY KEY,
+                    materia TEXT NOT NULL,
+                    assunto TEXT NOT NULL,
+                    descricao TEXT,
+                    questoes JSONB,
+                    arquivo TEXT,
+                    professor_id INTEGER REFERENCES professores(id) ON DELETE SET NULL
+                );
+            """)
+            conn.commit()
+            print("Tabela 'conteudos' pronta.")
+    except Error as e:
+        print(f"Erro ao criar tabela 'conteudos': {e}")
+
+def add_content(materia: str, assunto: str, descricao: str, questoes: list, arquivo: str, professor_id: int):
+    """Adiciona um novo conteúdo ao banco de dados."""
+    conn = create_conn()
+    if not conn:
+        return {"error": "Falha na conexão com o banco de dados."}
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("""
+                INSERT INTO conteudos (materia, assunto, descricao, questoes, arquivo, professor_id)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING id, materia, assunto;
+            """, (materia, assunto, descricao, questoes, arquivo, professor_id))
+            new_content = cursor.fetchone()
+            conn.commit()
+            return new_content
+    except Error as e:
+        print(f"Erro ao adicionar conteúdo: {e}")
+        if conn:
+            conn.rollback()
+        return {"error": str(e)}
+    finally:
+        if conn:
+            conn.close()
+
 def create_all_tables():
     conn = create_conn()
     if conn:
@@ -322,6 +366,7 @@ def create_all_tables():
         ensure_question_table_columns(conn)
         create_table_teachers(conn)
         ensure_teacher_table_columns(conn)
+        create_table_contents(conn)
         conn.close()
 
 def ensure_teacher_table_columns(conn):

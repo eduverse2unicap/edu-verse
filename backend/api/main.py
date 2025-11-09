@@ -21,6 +21,11 @@ tags_metadata = [
         "name": "Teachers",
         "description": "Operações relacionadas a professores, como login."
     }
+    ,
+    {
+        "name": "Content",
+        "description": "Operações para criar e gerenciar conteúdos educacionais."
+    }
 ]
 
 app = FastAPI(
@@ -80,6 +85,14 @@ class Question(BaseModel):
     nivel_dificuldade: int
     materia: str
     tags: str = '[]'
+
+class Content(BaseModel):
+    materia: str
+    assunto: str
+    descricao: str = None
+    questoes: list = []
+    arquivo: str = None # Para o base64 da imagem
+    professor_id: int
 
 class Teacher(BaseModel):
     name: str
@@ -191,3 +204,23 @@ def login_teacher(credentials: LoginCredentials):
         raise HTTPException(status_code=401, detail=result.get("message", "Credenciais inválidas"))
     # Retorna 200 OK com o ID do professor em caso de sucesso
     return result
+
+@app.post("/new-content", tags=["Content"])
+def create_content(content: Content):
+    """
+    Cria um novo conteúdo educacional. Requer o ID do professor.
+    """
+    try:
+        new_content = banco.add_content(
+            materia=content.materia,
+            assunto=content.assunto,
+            descricao=content.descricao,
+            questoes=content.questoes,
+            arquivo=content.arquivo,
+            professor_id=content.professor_id
+        )
+        if "error" in new_content:
+            raise HTTPException(status_code=400, detail=f"Erro ao criar conteúdo: {new_content['error']}")
+        return new_content
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")

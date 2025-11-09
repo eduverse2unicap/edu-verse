@@ -1,34 +1,22 @@
 let arquivoBase64 = null;
-
-// --- Supabase Client Initialization ---
-// IMPORTANT: You must include the Supabase client library in conteudo.html
-// e.g., <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-const supabaseUrl = 'https://iiplwwaegrofgknpoxtu.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGx3d2FlZ3JvZmdrbnBveHR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk0NjQ5NDcsImV4cCI6MjAxNTA0MDk0N30.P23nN_W9wT2l8A0so6_50oQzaR029T3_s0-322IflO8'; // Chave anônima pública
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
+const msgElement = document.getElementById("msg");
 
 // --- Authentication Check ---
-async function checkAuth() {
-    const { data: { session }, error } = await supabase.auth.getSession();
+function checkAuth() {
+    // Verifica se o ID do professor está salvo no localStorage após o login
+    const teacherId = localStorage.getItem('teacher_id');
+    const teacherEmail = localStorage.getItem('teacher_email');
 
-    if (error) {
-        console.error("Error getting session:", error);
-        return;
-    }
-
-    if (!session) {
+    if (!teacherId) {
         // No user is logged in, redirect to the teacher login page.
         alert("❌ Acesso negado! Você precisa estar logado como professor.");
         window.location.href = '/site/html/teacher_login.html';
     } else {
         // User is logged in, show the form.
-        console.log("✅ Acesso permitido para:", session.user.email);
+        console.log(`✅ Acesso permitido para professor ID: ${teacherId}`);
         document.getElementById("formConteudo").style.display = "block";
-        document.getElementById("msg").innerText = `Bem-vindo(a), ${session.user.email}! Você pode cadastrar conteúdos.`;
-        // You could pre-fill the 'materia' based on teacher's profile data in the future.
-        // For now, we'll make it editable.
-        document.getElementById("materia").readOnly = false;
+        msgElement.innerText = `Bem-vindo(a), ${teacherEmail || 'Professor(a)'}! Você pode cadastrar novos conteúdos.`;
+        msgElement.className = 'message-info';
     }
 }
 
@@ -58,43 +46,62 @@ async function salvarConteudo() {
     let assunto = document.getElementById("assunto").value.trim();
     let descricao = document.getElementById("descricao").value.trim();
     let questoes = document.getElementById("questoes").value.trim().split("\n").filter(q => q);
+    const teacherId = localStorage.getItem('teacher_id');
 
     if (!materia || !assunto || (!descricao && !arquivoBase64)) {
         alert("Preencha todos os campos obrigatórios!");
         return;
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    if (!teacherId) {
         alert("Sua sessão expirou. Faça login novamente.");
+        window.location.href = '/site/html/teacher_login.html';
         return;
     }
 
+    const payload = {
+        materia: materia,
+        assunto: assunto,
+        descricao: descricao,
+        questoes: questoes,
+        arquivo: arquivoBase64,
+        professor_id: parseInt(teacherId, 10)
+    };
+
     try {
-        const { data, error } = await supabase
-            .from('conteudos') // Make sure you have a 'conteudos' table in Supabase
-            .insert([{
-                materia: materia,
-                assunto: assunto,
-                descricao: descricao,
-                questoes: questoes, // Assumes 'questoes' is a text[] or jsonb column
-                arquivo: arquivoBase64, // Assumes 'arquivo' is a text column for base64
-                professor_id: user.id // Link content to the logged-in teacher
-            }]);
+        const response = await fetch('/api/new-content', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
 
-        if (error) throw error;
+        const result = await response.json();
 
-        document.getElementById("msg").innerText = "✅ Conteúdo salvo com sucesso no banco de dados!";
+        if (!response.ok) {
+            // Lança um erro para ser pego pelo bloco catch
+            throw new Error(result.detail || `Erro HTTP: ${response.status}`);
+        }
+
+        msgElement.innerText = `✅ Conteúdo "${result.assunto}" salvo com sucesso!`;
+        msgElement.className = 'message-success';
+
+        // Limpa o formulário
         document.getElementById("assunto").value = "";
         document.getElementById("descricao").value = "";
         document.getElementById("questoes").value = "";
         document.getElementById("imagem").value = "";
         document.getElementById("preview").innerHTML = "";
         arquivoBase64 = null;
+        
+        // Esconde a mensagem de sucesso após alguns segundos
+        setTimeout(() => { msgElement.innerText = ''; msgElement.className = ''; }, 5000);
 
     } catch (error) {
         console.error("Erro ao salvar conteúdo:", error.message);
-        document.getElementById("msg").innerText = "❌ Erro ao salvar conteúdo. Tente novamente.";
+        msgElement.innerText = `❌ Erro ao salvar: ${error.message}`;
+        msgElement.className = 'message-error';
     }
 }
 

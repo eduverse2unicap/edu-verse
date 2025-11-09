@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Em caso de sucesso, salva o ID do professor no localStorage para criar uma sessão
             localStorage.setItem('teacher_id', result.teacher_id);
+            localStorage.setItem('teacher_email', email); // Salva o email para usar em outras páginas
 
             console.log('Login successful!', result);
             messageEl.textContent = '✅ Login bem-sucedido! Redirecionando...';

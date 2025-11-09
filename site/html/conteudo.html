@@ -1,15 +1,12 @@
 <body>
     <link rel="stylesheet" href="/site/style/conteudo.css">
     <h1>Cadastro de Conteúdos - Professores</h1>
+    <p id="msg"></p>
     <div class="form-container">
-        <label>Código do Professor:</label>
-        <input type="text" id="codigoProfessor" placeholder="Digite seu código">
-
-        <button onclick="verificarCodigo()">Validar Código</button>
-
-        <div id="formConteudo" style="display:none; margin-top:20px;">
+        <!-- O formulário agora é exibido por padrão e o JS o esconderá se o usuário não estiver logado -->
+        <form id="formConteudo" style="display:none; margin-top:20px;">
             <label>Matéria:</label>
-            <input type="text" id="materia" readonly>
+            <input type="text" id="materia" placeholder="Ex: Inglês">
 
             <label>Assunto:</label>
             <input type="text" id="assunto" placeholder="Ex: Álgebra">
@@ -23,10 +20,10 @@
             <textarea id="questoes" placeholder="Digite cada questão em uma linha"></textarea>
 
             <button onclick="salvarConteudo()">Salvar Conteúdo</button>
-        </div>
+        </form>
 
         <button class="voltar-btn" onclick="voltarInicio()" style="margin-top:15px;">⬅ Voltar para Início</button>
-        <p id="msg"></p>
     </div>
+    <!-- O script do Supabase não é mais necessário aqui -->
     <script src="/site/script/conteudo.js"></script>
 </body>
