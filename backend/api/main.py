@@ -82,6 +82,10 @@ class Teacher(BaseModel):
     instituicao: str = None
     tags: str = '[]'
 
+class LoginCredentials(BaseModel):
+    email: str
+    password: str
+
 @app.post("/new-student", tags=["Students"])
 def create_student(student: Student):
     try:
@@ -150,3 +154,19 @@ def create_question(question: Question):
 @app.delete('/delete-question/{question_id}&{enunciado}', tags=["Questions"])
 def delete_question(question_id: int, enunciado: str, tags: str = '[]'):
     banco.delete_question(question_id, enunciado, tags)
+
+@app.post("/login-student", tags=["Students"])
+def login_student(credentials: LoginCredentials):
+    result = banco.login_student(credentials.email, credentials.password)
+    if "bem-sucedido" not in result.get("message", ""):
+        raise HTTPException(status_code=401, detail=result.get("message", "Credenciais inválidas"))
+    return result
+
+@app.post("/login-teacher", tags=["Teachers"]) # Adicionando a tag para organização
+def login_teacher(credentials: LoginCredentials):
+    result = banco.login_teacher(credentials.email, credentials.password)
+    if "bem-sucedido" not in result.get("message", ""):
+        # Retorna 401 Unauthorized para falhas de login
+        raise HTTPException(status_code=401, detail=result.get("message", "Credenciais inválidas"))
+    # Retorna 200 OK com o ID do professor em caso de sucesso
+    return result

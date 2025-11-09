@@ -406,14 +406,22 @@ def get_teachers_VERIFY(email: str):
 
 def login_teacher(email, password):
     conn = create_conn()
-    with conn.cursor(cursor_factory=RealDictCursor) as cursor:
-        try:
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute("SELECT id, senha, salt FROM professores WHERE email = %s", (email,))
             teacher_data = cursor.fetchone()
             if teacher_data:
-                if pass_hash.verify_password(password, teacher_data['senha'], teacher_data['salt']):
-                    headers = {'Cookie': 'session=valid'}
-                    response, content = http.request('https://edu-verse.vercel.app/teacher_dashboard', 'GET', headers=headers)
-        except Error as e:
-            print(f"Erro ao fazer login do professor: {e}")
-            return {"message": "Erro interno do servidor"}   
+                stored_hash = teacher_data['senha']
+                stored_salt = teacher_data['salt']
+                if pass_hash.verify_password(password, stored_hash, stored_salt):
+                    return {"message": "Login de professor bem-sucedido", "teacher_id": teacher_data['id']}
+                else:
+                    return {"message": "Senha incorreta"}
+            else:
+                return {"message": "Professor não encontrado"}
+    except Error as e:
+        print(f"Erro ao fazer login do professor: {e}")
+        return {"message": "Erro interno do servidor"}
+    finally:
+        if conn:
+            conn.close()
