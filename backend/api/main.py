@@ -16,6 +16,10 @@ tags_metadata = [
         "name": "Questions",
         "description": "Endpoints para gerenciar as perguntas da plataforma.",
     },
+    {
+        "name": "Teachers",
+        "description": "Operações relacionadas a professores, como login."
+    }
 ]
 
 app = FastAPI(
