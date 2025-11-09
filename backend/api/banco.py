@@ -425,3 +425,27 @@ def login_teacher(email, password):
     finally:
         if conn:
             conn.close()
+
+def check_existence(field: str, value: str):
+    """Verifica se um valor para um campo específico (email ou cpf) já existe na tabela de alunos."""
+    conn = create_conn()
+    if not conn:
+        return {"error": "Falha na conexão com o banco de dados", "exists": None}
+
+    # Validação para evitar SQL Injection no nome do campo
+    if field not in ['email', 'cpf']:
+        return {"error": "Campo de verificação inválido", "exists": None}
+
+    try:
+        with conn.cursor() as cursor:
+            # Usar f-string para o nome da coluna é seguro aqui por causa da validação acima
+            query = f"SELECT EXISTS(SELECT 1 FROM alunos WHERE {field} = %s)"
+            cursor.execute(query, (value,))
+            exists = cursor.fetchone()[0]
+            return {"exists": exists}
+    except Error as e:
+        print(f"Erro ao verificar existência de {field}: {e}")
+        return {"error": str(e), "exists": None}
+    finally:
+        if conn:
+            conn.close()

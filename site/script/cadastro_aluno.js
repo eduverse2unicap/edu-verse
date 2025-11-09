@@ -1,13 +1,20 @@
     document.addEventListener('DOMContentLoaded', () => {
       const form = document.getElementById('cadastroAlunoForm');
+      const emailInput = document.getElementById('email');
+      const cpfInput = document.getElementById('cpf');
       const senhaInput = document.getElementById('senha');
       const senhaErro = document.getElementById('senhaErro');
       const msgSucesso = document.getElementById('msgSucesso');
     
-      if (!form || !senhaInput || !senhaErro || !msgSucesso) {
+      if (!form || !emailInput || !cpfInput || !senhaInput || !senhaErro || !msgSucesso) {
         console.warn('Elementos do formulário de cadastro não encontrados, abortando script.');
         return;
       }
+
+      // Remove mensagens de erro existentes ao focar no campo
+      [emailInput, cpfInput].forEach(input => {
+          input.addEventListener('focus', () => removeExistingError(input));
+      });
     
       // Função de verificação de senha forte
       function validarSenha(senha) {
@@ -17,6 +24,40 @@
         const tamanhoMinimo = senha.length >= 8;
         return temMaiuscula && temNumero && temEspecial && tamanhoMinimo;
       }
+
+      // Função para verificar se email/cpf já existem
+      async function checkFieldExistence(field, value, inputElement) {
+        if (!value) return; // Não verifica se o campo estiver vazio
+        try {
+          const response = await fetch(`/api/check-existence?field=${field}&value=${encodeURIComponent(value)}`);
+          if (!response.ok) return; // Falha silenciosamente para não interromper o usuário
+
+          const data = await response.json();
+          if (data.exists) {
+            // Remove erro antigo antes de adicionar um novo
+            removeExistingError(inputElement);
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'field-error-message';
+            errorMsg.textContent = `Este ${field === 'email' ? 'e-mail' : 'CPF'} já está em uso.`;
+            inputElement.insertAdjacentElement('afterend', errorMsg);
+            inputElement.style.borderColor = 'red';
+          }
+        } catch (error) {
+          console.error(`Erro ao verificar ${field}:`, error);
+        }
+      }
+
+      function removeExistingError(inputElement) {
+          const nextSibling = inputElement.nextElementSibling;
+          if (nextSibling && nextSibling.classList.contains('field-error-message')) {
+              nextSibling.remove();
+              inputElement.style.borderColor = '#ccc'; // Reseta a cor da borda
+          }
+      }
+
+      // Adiciona listeners para verificar ao sair do campo (blur)
+      emailInput.addEventListener('blur', () => checkFieldExistence('email', emailInput.value, emailInput));
+      cpfInput.addEventListener('blur', () => checkFieldExistence('cpf', cpfInput.value, cpfInput));
     
       // Mostrar mensagem de erro ao digitar
       senhaInput.addEventListener('input', () => {
@@ -48,7 +89,7 @@
             name: studentData.nome,
             idade: parseInt(studentData.idade, 10), // Corrigido de 'age' para 'idade'
             email: studentData.email,
-            senha: studentData.senha, // Corrigido de 'password' para 'senha'
+            password: studentData.senha,
             phone_number: studentData.telefone,
             cpf: studentData.cpf,
             instituicao: studentData.instituicao
@@ -67,24 +108,40 @@
             body: JSON.stringify(payload),
           });
 
+          // Tenta ler o corpo da resposta como JSON, independentemente do status.
+          // Isso é crucial para obter a mensagem de erro do servidor.
+          const result = await response.json();
+
           if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            // Se a resposta não for OK, a API FastAPI envia o erro na chave 'detail'.
+            const serverMessage = result.detail || `Erro HTTP: ${response.status}`;
+
+            // Deixa a mensagem de erro mais amigável para o usuário
+            let friendlyMessage = 'Ocorreu um erro ao realizar o cadastro.';
+            if (typeof serverMessage === 'string') {
+                if (serverMessage.includes('alunos_cpf_key')) {
+                    friendlyMessage = 'O CPF informado já está cadastrado.';
+                } else if (serverMessage.includes('alunos_email_key')) {
+                    friendlyMessage = 'O e-mail informado já está cadastrado.';
+                }
+            }
+            // Lança um erro com a mensagem específica para ser pego pelo bloco catch.
+            throw new Error(friendlyMessage);
           }
 
-          const result = await response.json();
           console.log("✅ Cadastro realizado com sucesso!", result);
 
-          msgSucesso.textContent = `Cadastro de ${result.nome} (ID: ${result.id}) realizado com sucesso!`;
+          // A API retorna 'name', não 'nome', após o cadastro.
+          msgSucesso.textContent = `Cadastro de ${result.name} (ID: ${result.id}) realizado com sucesso!`;
           msgSucesso.style.display = 'block';
           form.reset();
           senhaInput.style.borderColor = '#ccc';
           alert('Cadastro realizado com sucesso!');
 
         } catch (error) {
-          // Erro de rede
-          console.error('Falha na comunicação com a API:', error);
-          alert('Não foi possível conectar ao servidor. Tente novamente mais tarde.');
+          // Exibe a mensagem de erro específica (seja do servidor ou de rede)
+          console.error('Falha no processo de cadastro:', error);
+          alert(error.message || 'Não foi possível conectar ao servidor. Verifique sua conexão.');
         }
       });
     });

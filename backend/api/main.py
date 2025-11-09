@@ -1,6 +1,7 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 import base64
 from pydantic import BaseModel
+from typing import Literal
 from . import banco
 
 tags_metadata = [
@@ -46,7 +47,7 @@ class Student(BaseModel):
     name: str
     idade: int
     email: str = None
-    senha: str
+    password: str
     phone_number: str = None
     level: int = 1
     xp: int = 0
@@ -97,7 +98,7 @@ def create_student(student: Student):
             name=student.name,
             age=student.idade,
             email=student.email,
-            password=student.senha,
+            password=student.password,
             phone_number=student.phone_number,
             level=student.level,
             xp=student.xp,
@@ -112,6 +113,18 @@ def create_student(student: Student):
         return new_student
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {e}")
+
+@app.get("/check-existence", tags=["Students"])
+def check_student_existence(field: Literal['email', 'cpf'], value: str):
+    """
+    Verifica se um email ou CPF já está cadastrado.
+    - `field`: 'email' ou 'cpf'
+    - `value`: O valor a ser verificado.
+    """
+    result = banco.check_existence(field=field, value=value)
+    if result.get("error"):
+        raise HTTPException(status_code=500, detail=result["error"])
+    return {"exists": result["exists"]}
 
 @app.delete("/delete-student/{student_id}&{name}", tags=["Students"])
 def delete_student(student_id: int, name: str):
